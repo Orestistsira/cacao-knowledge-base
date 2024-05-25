@@ -54,10 +54,10 @@ async def search_playbooks(
 @app.get("/playbooks/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def get_playbook(id: str):    
     playbook = collection.find_one({"_id": ObjectId(id)})
-    if playbook is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
-    playbook["_id"] = str(playbook["_id"])
-    return playbook
+    if playbook is not None:
+        playbook["_id"] = str(playbook["_id"])
+        return playbook
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @app.put("/playbooks/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_playbook(id: str, playbook_update: dict):
