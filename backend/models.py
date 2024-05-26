@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from __future__ import annotations
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -97,7 +98,7 @@ class ExtensionDefinition(BaseModel):
     name: str
     description: str | None = None
     created_by: str
-    schema: str
+    my_schema: str = Field(..., alias='schema')
     version: str
     external_references: List[ExternalReference] | None = None
 
@@ -142,7 +143,7 @@ class Signature(BaseModel):
     cert_url: str | None = None
     thumbprint: str | None = None
     value: str
-    # signature: Signature | None = None
+    signature: Signature | None = None
 
 
 class Playbook(BaseModel):
@@ -183,4 +184,4 @@ class Playbook(BaseModel):
 
 
 class PlaybookInDB(Playbook):
-    mongo_id: str
+    mongo_id: str = Field(..., alias='_id')
