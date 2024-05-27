@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from models import Playbook, PlaybookInDB
 
+
 load_dotenv()
 
 app = FastAPI()
