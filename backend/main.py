@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException, status
-from typing import List
+from datetime import datetime
+import re
+from fastapi import FastAPI, HTTPException, Query, status
+from typing import Annotated, List
 from pymongo import MongoClient
 from bson import ObjectId
 import os
@@ -42,13 +44,26 @@ async def get_playbooks(limit: int=50):
 async def search_playbooks(
     name: str | None = None,
     created_by: str | None = None,
+    created_after: datetime | None = None,
+    created_until: datetime | None = None,
+    revoked: bool | None = None,
+    labels: Annotated[list[str] | None, Query()] = None,
     limit: int = 50
 ):
     query = {}
     if name:
         query["name"] = {"$regex": name, "$options": "i"}
     if created_by:
-        query["created_by"] = {"$regex": created_by, "$options": "i"}
+        query["created_by"] = created_by
+    if created_after:
+        query["created"] = {"$gte": created_after}
+    if created_after:
+        query["created"] = {"$lte": created_until}
+    if revoked:
+        query["revoked"] = revoked
+    if labels:
+        regex_labels = [f"^{re.escape(label)}" for label in labels]
+        query["labels"] = {"$regex": "|".join(regex_labels)}
     
     playbooks = list(collection.find(query).limit(limit))
     for playbook in playbooks:
