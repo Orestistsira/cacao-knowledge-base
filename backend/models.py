@@ -46,6 +46,25 @@ class PlaybookInDB(Playbook):
     mongo_id: str = Field(..., alias='_id')
 
 
+class PlaybookMeta(BaseModel):
+    type: str
+    spec_version: str
+    id: str
+    name: str
+    description: str | None = None
+    playbook_types: List[str] | None = None
+    playbook_activities: List[str] | None = None
+    playbook_processing_summary: PlaybookProcessingSummary | None = None
+    created: datetime
+    modified: datetime
+    revoked: bool | None = None
+    priority: int | None = None
+    severity: int | None = None
+    impact: int | None = None
+    industry_sectors: List[str] | None = None
+    labels: List[str] | None = None
+
+
 class ExternalReference(BaseModel):
     name: str
     description: str | None = None
