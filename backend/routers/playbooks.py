@@ -13,17 +13,41 @@ router = APIRouter(
     tags=["playbooks"],
 )
 
-collection = db.playbooks
+playbooks_collection = db.playbooks
+history_collection = db.history
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_playbook(playbook: Playbook):
+    """
+    Create a new playbook.
+
+    Args:
+    - playbook: The Playbook object to be created.
+
+    Returns:
+    - A dictionary containing the Mongo ID of the newly created playbook.
+    """
+
     playbook = playbook.model_dump()
-    result = collection.insert_one(playbook)
+
+    result = playbooks_collection.insert_one(playbook)
+    history_collection.insert_one(playbook)
+
     return {"_id": str(result.inserted_id)}
 
 @router.get("/", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
 async def get_playbooks(limit: int=50):
-    playbooks = list(collection.find().limit(limit))
+    """
+    Retrieve a list of playbooks.
+
+    Args:
+    - limit: The maximum number of playbooks to retrieve (default is 50).
+
+    Returns:
+    - A list of playbook objects.
+    """
+
+    playbooks = list(playbooks_collection.find().limit(limit))
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
@@ -38,6 +62,22 @@ async def search_playbooks(
     labels: Annotated[list[str] | None, Query()] = None,
     limit: int = 50
 ):
+    """
+    Search for playbooks based on various criteria.
+
+    Args:
+    - name: Search by playbook name.
+    - created_by: Search by the creator of the playbook.
+    - created_after: Search for playbooks created after a certain date.
+    - created_until: Search for playbooks created until a certain date.
+    - revoked: Search for playbooks that are revoked.
+    - labels: Search for playbooks with specific labels.
+    - limit: The maximum number of playbooks to retrieve (default is 50).
+
+    Returns:
+    - A list of playbook objects that match the search criteria.
+    """
+
     query = {}
     if name:
         query["name"] = {"$regex": name, "$options": "i"}
@@ -53,14 +93,27 @@ async def search_playbooks(
         regex_labels = [f"^{re.escape(label)}" for label in labels]
         query["labels"] = {"$regex": "|".join(regex_labels)}
     
-    playbooks = list(collection.find(query).limit(limit))
+    playbooks = list(playbooks_collection.find(query).limit(limit))
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
 
 @router.get("/{id}", response_model=PlaybookInDB, status_code=status.HTTP_200_OK)
-async def get_playbook(id: str):    
-    playbook = collection.find_one({"_id": ObjectId(id)})
+async def get_playbook(id: str):
+    """
+    Retrieve a playbook by its Mongo ID.
+
+    Args:
+    - id: The Mongo ID of the playbook to retrieve.
+
+    Returns:
+    - The playbook object if found.
+
+    Raises:
+    - HTTPException: If the playbook is not found.
+    """
+
+    playbook = playbooks_collection.find_one({"_id": ObjectId(id)})
     if playbook is not None:
         playbook["_id"] = str(playbook["_id"])
         return playbook
@@ -68,15 +121,62 @@ async def get_playbook(id: str):
 
 @router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_playbook(id: str, playbook_update: Playbook):
+    """
+    Update an existing playbook by its Mongo ID.
+
+    Args:
+    - id: The Mongo ID of the playbook to update.
+    - playbook_update: The updated Playbook object.
+
+    Returns:
+    - A message indicating the playbook was updated.
+
+    Raises:
+    - HTTPException: If the playbook is not found.
+    """
+
     playbook_update = playbook_update.model_dump()
-    result = collection.update_one({"_id": ObjectId(id)}, {"$set": playbook_update})
+    result = playbooks_collection.update_one({"_id": ObjectId(id)}, {"$set": playbook_update})
+    history_collection.insert_one(playbook_update)
+
     if result.modified_count == 1:
         return {"message": "Playbook updated"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @router.delete("/{id}", status_code=status.HTTP_200_OK)
 async def delete_playbook(id: str):
+    """
+    Delete a playbook by its Mongo ID.
+
+    Args:
+    - id: The Mongo ID of the playbook to delete.
+
+    Returns:
+    - A message indicating the playbook was deleted successfully.
+
+    Raises:
+    - HTTPException: If the playbook is not found.
+    """
+
     result = db.playbooks.delete_one({"_id": ObjectId(id)})
     if result.deleted_count == 1:
         return {"message": "Playbook deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+
+@router.get("/{id}/history", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
+async def get_playbook_history(id: str, limit: int=50):
+    """
+    Retrieve the history of a playbook by its Playbook ID property.
+
+    Args:
+    - id: The Playbook ID of the playbook to retrieve history for.
+    - limit: The maximum number of history entries to retrieve (default is 50).
+
+    Returns:
+    - A list of playbook history objects.
+    """
+
+    playbook_history = list(history_collection.find({"id": id}).limit(limit))
+    for playbook in playbook_history:
+        playbook["_id"] = str(playbook["_id"])
+    return playbook_history
