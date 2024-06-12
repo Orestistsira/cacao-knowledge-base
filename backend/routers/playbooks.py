@@ -174,9 +174,14 @@ async def get_playbook_history(id: str, limit: int=50):
 
     Returns:
     - A list of playbook history objects.
+
+    Raises:
+    - HTTPException: If the playbook is not found.
     """
 
     playbook_history = list(history_collection.find({"id": id}).limit(limit))
-    for playbook in playbook_history:
-        playbook["_id"] = str(playbook["_id"])
-    return playbook_history
+    if len(playbook_history) > 0:
+        for playbook in playbook_history:
+            playbook["_id"] = str(playbook["_id"])
+        return playbook_history
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
