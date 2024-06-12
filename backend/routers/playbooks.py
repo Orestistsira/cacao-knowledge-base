@@ -1,22 +1,18 @@
-import os
 from fastapi import APIRouter
 from datetime import datetime
 import re
 from fastapi import HTTPException, Query, status
 from typing import Annotated, List
-from pymongo import MongoClient
 from bson import ObjectId
 
 from models.models import Playbook, PlaybookInDB
-
+from database import db
 
 router = APIRouter(
     prefix="/playbooks",
     tags=["playbooks"],
 )
 
-client = MongoClient(os.getenv("MONGODB_URI"))
-db = client['cacao_knowledge_base']
 collection = db.playbooks
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
