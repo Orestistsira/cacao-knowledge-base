@@ -170,7 +170,7 @@ async def get_playbook_history(playbook_id: str, limit: int=50):
     Retrieve the history of a playbook by its Playbook ID property.
 
     Args:
-    - id: The Playbook ID of the playbook to retrieve history for.
+    - playbook_id: The Playbook ID of the playbook to retrieve history for.
     - limit: The maximum number of history entries to retrieve (default is 50).
 
     Returns:
@@ -207,13 +207,13 @@ async def delete_playbook_history(playbook_id: str):
         return {"message": f"History playbooks deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No history playbooks found for the given Playbook ID")
 
-@router.post("/rollback/{history_id}", response_model=dict, status_code=status.HTTP_200_OK)
-async def rollback_playbook(history_id: str):
+@router.post("/rollback/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+async def rollback_playbook(id: str):
     """
     Rollback to a specific playbook from history by its Mongo ID.
 
     Args:
-    - history_id: The Mongo ID of the history playbook to restore.
+    - id: The Mongo ID of the history playbook to restore.
 
     Returns:
     - A message indicating the playbook was restored successfully.
@@ -222,7 +222,7 @@ async def rollback_playbook(history_id: str):
     - HTTPException: If the history playbook is not found.
     """
 
-    history_playbook = history_collection.find_one({"_id": ObjectId(history_id)})
+    history_playbook = history_collection.find_one({"_id": ObjectId(id)})
     if history_playbook is not None:
         playbook_id = history_playbook["id"]
 
