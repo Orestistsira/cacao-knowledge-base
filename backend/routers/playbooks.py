@@ -30,8 +30,16 @@ async def create_playbook(playbook: Playbook):
 
     playbook = playbook.model_dump()
 
+    # Check if a playbook with the same "id" already exists
+    existing_playbook = playbooks_collection.find_one({"id": playbook["id"]})
+    if existing_playbook:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A playbook with this 'id' already exists"
+        )
+
     result = playbooks_collection.insert_one(playbook)
-    if result is not None:
+    if result:
         history_collection.insert_one(playbook)
 
     return {"_id": str(result.inserted_id)}
@@ -115,7 +123,7 @@ async def get_playbook(id: str):
     """
 
     playbook = playbooks_collection.find_one({"_id": ObjectId(id)})
-    if playbook is not None:
+    if playbook:
         playbook["_id"] = str(playbook["_id"])
         return playbook
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
@@ -185,7 +193,7 @@ async def get_playbook_history(playbook_id: str, limit: int=50):
         for playbook in playbook_history:
             playbook["_id"] = str(playbook["_id"])
         return playbook_history
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbooks not found for the given Playbook ID")
 
 @router.delete("/{playbook_id}/history", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_playbook_history(playbook_id: str):
@@ -205,7 +213,7 @@ async def delete_playbook_history(playbook_id: str):
     result = history_collection.delete_many({"id": playbook_id})
     if result.deleted_count > 0:
         return {"message": f"History playbooks deleted successfully"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No history playbooks found for the given Playbook ID")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbooks not found for the given Playbook ID")
 
 @router.post("/rollback/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def rollback_playbook(id: str):
