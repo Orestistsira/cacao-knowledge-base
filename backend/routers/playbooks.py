@@ -30,14 +30,6 @@ async def create_playbook(playbook: Playbook):
 
     playbook = playbook.model_dump()
 
-    # Check if a playbook with the same "id" already exists
-    existing_playbook = playbooks_collection.find_one({"id": playbook["id"]})
-    if existing_playbook:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A playbook with this 'id' already exists"
-        )
-
     result = playbooks_collection.insert_one(playbook)
     if result:
         history_collection.insert_one(playbook)
