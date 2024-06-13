@@ -31,7 +31,8 @@ async def create_playbook(playbook: Playbook):
     playbook = playbook.model_dump()
 
     result = playbooks_collection.insert_one(playbook)
-    history_collection.insert_one(playbook)
+    if result is not None:
+        history_collection.insert_one(playbook)
 
     return {"_id": str(result.inserted_id)}
 
@@ -137,13 +138,13 @@ async def update_playbook(id: str, playbook_update: Playbook):
 
     playbook_update = playbook_update.model_dump()
     result = playbooks_collection.update_one({"_id": ObjectId(id)}, {"$set": playbook_update})
-    history_collection.insert_one(playbook_update)
-
+    
     if result.modified_count == 1:
+        history_collection.insert_one(playbook_update)
         return {"message": "Playbook updated"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_playbook(id: str):
     """
     Delete a playbook by its Mongo ID.
@@ -158,13 +159,13 @@ async def delete_playbook(id: str):
     - HTTPException: If the playbook is not found.
     """
 
-    result = db.playbooks.delete_one({"_id": ObjectId(id)})
+    result = playbooks_collection.delete_one({"_id": ObjectId(id)})
     if result.deleted_count == 1:
         return {"message": "Playbook deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
-@router.get("/{id}/history", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
-async def get_playbook_history(id: str, limit: int=50):
+@router.get("/{playbook_id}/history", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
+async def get_playbook_history(playbook_id: str, limit: int=50):
     """
     Retrieve the history of a playbook by its Playbook ID property.
 
@@ -179,9 +180,60 @@ async def get_playbook_history(id: str, limit: int=50):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook_history = list(history_collection.find({"id": id}).limit(limit))
+    playbook_history = list(history_collection.find({"id": playbook_id}).limit(limit))
     if len(playbook_history) > 0:
         for playbook in playbook_history:
             playbook["_id"] = str(playbook["_id"])
         return playbook_history
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+
+@router.delete("/{playbook_id}/history", response_model=dict, status_code=status.HTTP_200_OK)
+async def delete_playbook_history(playbook_id: str):
+    """
+    Delete all history playbooks associated with a specific playbook ID.
+
+    Args:
+    - playbook_id: The Playbook ID of the playbook whose history is to be deleted.
+
+    Returns:
+    - A message indicating the history playbooks were deleted successfully.
+
+    Raises:
+    - HTTPException: If no history playbooks are found.
+    """
+
+    result = history_collection.delete_many({"id": playbook_id})
+    if result.deleted_count > 0:
+        return {"message": f"History playbooks deleted successfully"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No history playbooks found for the given Playbook ID")
+
+@router.post("/rollback/{history_id}", response_model=dict, status_code=status.HTTP_200_OK)
+async def rollback_playbook(history_id: str):
+    """
+    Rollback to a specific playbook from history by its Mongo ID.
+
+    Args:
+    - history_id: The Mongo ID of the history playbook to restore.
+
+    Returns:
+    - A message indicating the playbook was restored successfully.
+
+    Raises:
+    - HTTPException: If the history playbook is not found.
+    """
+
+    history_playbook = history_collection.find_one({"_id": ObjectId(history_id)})
+    if history_playbook is not None:
+        playbook_id = history_playbook["id"]
+
+        # Remove _id to avoid duplicate key error
+        history_playbook.pop("_id")
+        history_playbook["modified"] = datetime.now()
+        
+        result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
+        if result.modified_count == 1:
+            history_collection.insert_one(history_playbook)
+            return {"message": "Playbook restored successfully"}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbook not found")
+  
