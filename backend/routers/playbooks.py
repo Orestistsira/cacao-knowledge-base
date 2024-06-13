@@ -145,7 +145,9 @@ async def update_playbook(id: str, playbook_update: Playbook):
     """
 
     playbook_update = playbook_update.model_dump()
-    result = playbooks_collection.update_one({"_id": ObjectId(id)}, {"$set": playbook_update})
+
+    # Update playbook only if both ids match
+    result = playbooks_collection.update_one({"_id": ObjectId(id), "id": playbook_update["id"]}, {"$set": playbook_update})
     
     if result.modified_count == 1:
         history_collection.insert_one(playbook_update)
