@@ -189,6 +189,27 @@ async def get_playbook_history(playbook_id: str, limit: int=50):
         return playbook_history
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbooks not found for the given Playbook ID")
 
+@router.get("/history/{id}", response_model=PlaybookInDB, status_code=status.HTTP_200_OK)
+async def get_history_playbook(id: str):
+    """
+    Retrieve a history playbook by its Mongo ID.
+
+    Args:
+    - id: The Mongo ID of the history playbook to retrieve.
+
+    Returns:
+    - The playbook object if found.
+
+    Raises:
+    - HTTPException: If the playbook is not found.
+    """
+
+    playbook = history_collection.find_one({"_id": ObjectId(id)})
+    if playbook:
+        playbook["_id"] = str(playbook["_id"])
+        return playbook
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+
 @router.delete("/{playbook_id}/history", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_playbook_history(playbook_id: str):
     """
