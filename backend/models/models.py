@@ -223,8 +223,16 @@ class ExtensionDefinition(BaseModel):
 
 class DataMarkingType(str, Enum):
     marking_statement = 'marking-statement'
-    marking_tlp= 'marking-tlp'
+    marking_tlp = 'marking-tlp'
     marking_iep = 'marking-iep'
+
+
+class DataMarkingTlpLevel(str, Enum):
+    tlp_red = 'TLP:RED'
+    tlp_amber = 'TLP:AMBER'
+    tlp_amber_strict = 'TLP:AMBER+STRICT'
+    tlp_green = 'TLP:GREEN'
+    tlp_clear = 'TLP:CLEAR'
 
 
 class DataMarking(BaseModel):
@@ -233,13 +241,24 @@ class DataMarking(BaseModel):
     name: str | None = None
     description: str | None = None
     created_by: str
-    created: datetime
+    created: str
     revoked: bool | None = None
     valid_from: datetime | None = None
     valid_until: datetime | None = None
     labels: List[str] | None = None
     external_references: List[ExternalReference] | None = None
     marking_extensions: Dict[str, Any] | None = None
+    statement: str | None = None
+    tlpv2_level: DataMarkingTlpLevel | None = None
+    tlp: str | None = None
+    iep_version: int | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    encrypt_in_transit: str | None = None
+    permitted_actions: str | None = None
+    affected_party_notifications: str | None = None
+    attribution: str | None = None
+    unmodified_resale: str | None = None
 
 
 class Signature(BaseModel):
