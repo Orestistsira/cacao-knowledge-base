@@ -1,5 +1,7 @@
 import asyncio
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 from fastapi import HTTPException, status, APIRouter, BackgroundTasks
 from typing import List
 
@@ -9,6 +11,8 @@ from models.models import Playbook
 from database import db
 
 
+load_dotenv()
+
 router = APIRouter(
     prefix="/soarca",
     tags=["soarca"],
@@ -16,7 +20,7 @@ router = APIRouter(
 
 playbook_executions = db.executions
 
-soarca_url = "http://localhost:8080"
+soarca_url = os.getenv("SOARCA_URI")
 
 @router.post("/trigger/playbook", response_model=dict, status_code=status.HTTP_200_OK)
 async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
@@ -29,6 +33,8 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
     Returns:
     - A dictionary containing the execution-id and the playbook-id.
     """
+
+    print(soarca_url)
 
     try:
         async with httpx.AsyncClient() as client:
