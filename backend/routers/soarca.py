@@ -114,41 +114,55 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
             }
         )
 
-@router.get("/executions/currently-running", response_model=List[dict])
-async def get_currently_running_executions():
+@router.get("/executions/", response_model=List[dict])
+async def get_executions():
     """
-    Retrieve currently running executions.
+    Retrieve all executions.
 
     Returns:
-    - A list of currently running executions.
+    - A list of executions.
     """
 
-    running_playbooks = list(playbook_executions.find({"status": "ongoing"}))
-    for playbook_exe in running_playbooks:
-        playbook_exe["_id"] = str(playbook_exe["_id"])
-    return running_playbooks
+    executions = list(playbook_executions.find())
+    for execution in executions:
+        execution["_id"] = str(execution["_id"])
+    return executions
 
-@router.get("/reporters", response_model=List[dict], status_code=status.HTTP_200_OK)
-async def get_reporters():
+@router.get("/executions/ongoing", response_model=List[dict])
+async def get_ongoing_executions():
     """
-    Retrieve all the reporters from SOARCA.
+    Retrieve ongoing executions.
 
     Returns:
-    - A list of reporter objects.
+    - A list of ongoing executions.
     """
 
-    raise NotImplementedError
+    ongoing_executions = list(playbook_executions.find({"status": "ongoing"}))
+    for execution in ongoing_executions:
+        execution["_id"] = str(execution["_id"])
+    return ongoing_executions
 
-@router.get("/reporters/{id}", response_model=dict, status_code=status.HTTP_200_OK)
-async def get_reporter(id: str):
-    """
-    Retrieve a reporter from SOARCA by its ID.
+# @router.get("/reporters", response_model=List[dict], status_code=status.HTTP_200_OK)
+# async def get_reporters():
+#     """
+#     Retrieve all the reporters from SOARCA.
 
-    Args:
-    - id: The reporter ID.
+#     Returns:
+#     - A list of reporter objects.
+#     """
 
-    Returns:
-    - A reporter object.
-    """
+#     raise NotImplementedError
 
-    raise NotImplementedError
+# @router.get("/reporters/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+# async def get_reporter(id: str):
+#     """
+#     Retrieve a reporter from SOARCA by its ID.
+
+#     Args:
+#     - id: The reporter ID.
+
+#     Returns:
+#     - A reporter object.
+#     """
+
+#     raise NotImplementedError
