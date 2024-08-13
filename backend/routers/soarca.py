@@ -15,7 +15,6 @@ router = APIRouter(
 )
 
 playbook_executions = db.executions
-playbook_stats = db.stats
 
 soarca_url = "http://localhost:8080"
 
@@ -30,6 +29,7 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
     Returns:
     - A dictionary containing the execution-id and the playbook-id.
     """
+
     try:
         async with httpx.AsyncClient() as client:
             # TODO: Set playbook dict to Playbook object - serialize datetime and remove null values
@@ -49,14 +49,14 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
                 "start_time": start_time
             })
 
-            background_tasks.add_task(monitor_playbook_execution, execution_id, playbook_id, start_time)
+            background_tasks.add_task(monitor_playbook_execution, execution_id, start_time)
 
             return {"playbook_id": playbook_id, "execution_id": execution_id}
 
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-async def monitor_playbook_execution(execution_id: str, playbook_id: str, start_time: datetime, timeout_seconds: int = 3600):
+async def monitor_playbook_execution(execution_id: str, start_time: datetime, timeout_seconds: int = 3600):
     """
     Monitors a playbook execution.
 
@@ -65,6 +65,8 @@ async def monitor_playbook_execution(execution_id: str, playbook_id: str, start_
     - start_time: The start time of the execution.
     """
 
+    polling_interval = 5 # Poll every X seconds
+
     try:
         # Define a coroutine that performs the monitoring loop
         async def monitoring_loop():
@@ -72,41 +74,43 @@ async def monitor_playbook_execution(execution_id: str, playbook_id: str, start_
                 async with httpx.AsyncClient() as client:
                     response = await client.get(f"{soarca_url}/reporter/{execution_id}")
                     response.raise_for_status()
+
                     reporter_info = response.json()
+                    end_time = datetime.now()
 
                     # Check if the playbook execution has completed
                     if reporter_info["status"] != "ongoing":
                         playbook_executions.update_one(
                             {"execution_id": execution_id},
-                            {"$set": {"status": reporter_info["status"], "end_time": datetime.now()}}
+                            {
+                                "$set": {
+                                    "status": reporter_info["status"], 
+                                    "end_time": end_time, 
+                                    "runtime": (end_time - start_time).total_seconds()
+                                }
+                            }
                         )
-                        
-                        playbook_stats.insert_one({
-                            "execution_id": execution_id,
-                            "playbook_id": playbook_id,
-                            "runtime": (datetime.now() - start_time).total_seconds(),
-                            "status": reporter_info["status"]
-                        })
                         break
 
-                await asyncio.sleep(10)  # Poll every 10 seconds
+                await asyncio.sleep(polling_interval)  
 
         # Run the monitoring loop with a timeout
         await asyncio.wait_for(monitoring_loop(), timeout=timeout_seconds)
 
     except asyncio.TimeoutError:
         # Handle the case where the monitoring times out
+        end_time = datetime.now()
+
         playbook_executions.update_one(
             {"execution_id": execution_id},
-            {"$set": {"status": "timeout_error", "end_time": datetime.now()}}
+            {
+                "$set": {
+                    "status": "timeout_error", 
+                    "end_time": end_time,
+                    "runtime": (end_time - start_time).total_seconds()
+                }
+            }
         )
-        
-        playbook_stats.insert_one({
-            "execution_id": execution_id,
-            "playbook_id": playbook_id,
-            "runtime": (datetime.now() - start_time).total_seconds(),
-            "status": "timeout_error"
-        })
 
 @router.get("/executions/currently-running", response_model=List[dict])
 async def get_currently_running_executions():
@@ -116,6 +120,7 @@ async def get_currently_running_executions():
     Returns:
     - A list of currently running executions.
     """
+
     running_playbooks = list(playbook_executions.find({"status": "ongoing"}))
     for playbook_exe in running_playbooks:
         playbook_exe["_id"] = str(playbook_exe["_id"])
@@ -129,6 +134,7 @@ async def get_reporters():
     Returns:
     - A list of reporter objects.
     """
+
     raise NotImplementedError
 
 @router.get("/reporters/{id}", response_model=dict, status_code=status.HTTP_200_OK)
@@ -142,4 +148,5 @@ async def get_reporter(id: str):
     Returns:
     - A reporter object.
     """
+
     raise NotImplementedError
