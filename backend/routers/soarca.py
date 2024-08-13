@@ -49,6 +49,7 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
                 "start_time": start_time
             })
 
+            # Start agent on background to monitor playbook execution
             background_tasks.add_task(monitor_playbook_execution, execution_id, start_time)
 
             return {"playbook_id": playbook_id, "execution_id": execution_id}
@@ -63,9 +64,10 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
     Args:
     - execution_id: The execution_id of the execution to monitor.
     - start_time: The start time of the execution.
+    - timeout_seconds: The maximum time (in seconds) to monitor the execution before timing out.
     """
 
-    polling_interval = 5 # Poll every X seconds
+    poll_interval_seconds = 5 # Poll every X seconds
 
     try:
         # Define a coroutine that performs the monitoring loop
@@ -92,7 +94,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
                         )
                         break
 
-                await asyncio.sleep(polling_interval)  
+                await asyncio.sleep(poll_interval_seconds)  
 
         # Run the monitoring loop with a timeout
         await asyncio.wait_for(monitoring_loop(), timeout=timeout_seconds)
