@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, status, APIRouter, BackgroundTasks
@@ -34,8 +34,6 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
     - A dictionary containing the execution-id and the playbook-id.
     """
 
-    print(soarca_url)
-
     try:
         async with httpx.AsyncClient() as client:
             # TODO: Set playbook dict to Playbook object - serialize datetime and remove null values
@@ -46,7 +44,7 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
             execution_id = result.get("execution_id")
             playbook_id = result.get("payload")
 
-            start_time = datetime.now()
+            start_time = datetime.now(timezone.utc)
 
             playbook_executions.insert_one({
                 "playbook_id": playbook_id,
@@ -84,7 +82,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
                     response.raise_for_status()
 
                     reporter_info = response.json()
-                    end_time = datetime.now()
+                    end_time = datetime.now(timezone.utc)
 
                     # Check if the playbook execution has completed
                     if reporter_info["status"] != "ongoing":
@@ -107,7 +105,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
 
     except asyncio.TimeoutError:
         # Handle the case where the monitoring times out
-        end_time = datetime.now()
+        end_time = datetime.now(timezone.utc)
 
         playbook_executions.update_one(
             {"execution_id": execution_id},

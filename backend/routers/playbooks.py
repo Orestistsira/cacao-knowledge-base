@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 from fastapi import HTTPException, Query, status
 from typing import Annotated, List
@@ -191,6 +191,8 @@ async def get_playbook_history(id: str, limit: int=50):
 
     playbook_history = list(history_collection.find({"id": id}).limit(limit))
     if len(playbook_history) > 0:
+        # Delete last playbook which is the current
+        del playbook_history[-1]
         for playbook in playbook_history:
             playbook["_id"] = str(playbook["_id"])
         return playbook_history
@@ -258,7 +260,7 @@ async def rollback_playbook(history_id: str):
 
         # Remove _id to avoid duplicate key error
         history_playbook.pop("_id")
-        history_playbook["modified"] = datetime.now(datetime.timezone.utc).isoformat()
+        history_playbook["modified"] = datetime.now(timezone.utc).isoformat("T").replace('+00:00', 'Z')
         
         result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
         if result.modified_count == 1:

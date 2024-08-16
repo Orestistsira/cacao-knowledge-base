@@ -7,7 +7,7 @@ from enum import Enum
 
 # Custom timestamp data type
 datetime_regex = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$"
-Timestamp = Annotated[str, Field(..., pattern=datetime_regex)]
+Timestamp = Annotated[str, Field(pattern=datetime_regex)]
 
 
 class Playbook(BaseModel):
