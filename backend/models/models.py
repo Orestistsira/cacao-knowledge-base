@@ -1,8 +1,12 @@
 from __future__ import annotations
+from typing_extensions import Annotated
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
-from datetime import datetime
 from enum import Enum
+
+# Custom timestamp data type
+# TODO: add validators
+Timestamp = Annotated[str, Field()]
 
 
 class Playbook(BaseModel):
@@ -15,11 +19,11 @@ class Playbook(BaseModel):
     playbook_activities: List[str] | None = None
     playbook_processing_summary: PlaybookProcessingSummary | None = None
     created_by: str
-    created: datetime
-    modified: datetime
+    created: Timestamp
+    modified: Timestamp
     revoked: bool | None = None
-    valid_from: datetime | None = None
-    valid_until: datetime | None = None
+    valid_from: Timestamp | None = None
+    valid_until: Timestamp | None = None
     derived_from: List[str] | None = None
     related_to: List[str] | None = None
     priority: int | None = None
@@ -55,8 +59,8 @@ class PlaybookMeta(BaseModel):
     playbook_types: List[str] | None = None
     playbook_activities: List[str] | None = None
     playbook_processing_summary: PlaybookProcessingSummary | None = None
-    created: datetime
-    modified: datetime
+    created: Timestamp
+    modified: Timestamp
     revoked: bool | None = None
     priority: int | None = None
     severity: int | None = None
@@ -243,8 +247,8 @@ class DataMarking(BaseModel):
     created_by: str
     created: str
     revoked: bool | None = None
-    valid_from: datetime | None = None
-    valid_until: datetime | None = None
+    valid_from: Timestamp | None = None
+    valid_until: Timestamp | None = None
     labels: List[str] | None = None
     external_references: List[ExternalReference] | None = None
     marking_extensions: Dict[str, Any] | None = None
@@ -252,8 +256,8 @@ class DataMarking(BaseModel):
     tlpv2_level: DataMarkingTlpLevel | None = None
     tlp: str | None = None
     iep_version: int | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    start_date: Timestamp | None = None
+    end_date: Timestamp | None = None
     encrypt_in_transit: str | None = None
     permitted_actions: str | None = None
     affected_party_notifications: str | None = None
@@ -265,14 +269,14 @@ class Signature(BaseModel):
     type: str
     id: str
     created_by: str | None = None
-    created: datetime
-    modified: datetime
+    created: Timestamp
+    modified: Timestamp
     revoked: bool | None = None
     signee: str
-    valid_from: datetime | None = None
-    valid_until: datetime | None = None
+    valid_from: Timestamp | None = None
+    valid_until: Timestamp | None = None
     related_to: str
-    related_version: datetime
+    related_version: Timestamp
     hash_algorithm: str
     algorithm: str
     public_key: str | None = None

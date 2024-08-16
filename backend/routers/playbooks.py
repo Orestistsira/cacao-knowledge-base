@@ -142,7 +142,7 @@ async def update_playbook(id: str, playbook_update: Playbook):
     result = playbooks_collection.update_one(
         {
             "id": id, 
-            # "created": playbook_update["created"], 
+            "created": playbook_update["created"], 
             "created_by": playbook_update["created_by"]
         }, 
         {"$set": playbook_update}
@@ -258,7 +258,7 @@ async def rollback_playbook(history_id: str):
 
         # Remove _id to avoid duplicate key error
         history_playbook.pop("_id")
-        history_playbook["modified"] = datetime.now()
+        history_playbook["modified"] = datetime.now(datetime.timezone.utc).isoformat()
         
         result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
         if result.modified_count == 1:
