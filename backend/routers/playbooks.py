@@ -5,7 +5,7 @@ from fastapi import HTTPException, Query, status
 from typing import Annotated, List
 from bson import ObjectId
 
-from models.models import Playbook, PlaybookInDB
+from models.playbook import Playbook, PlaybookInDB
 from database import db
 
 router = APIRouter(

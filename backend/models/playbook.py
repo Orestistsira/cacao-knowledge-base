@@ -4,9 +4,10 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 from enum import Enum
 
+
 # Custom timestamp data type
-# TODO: add validators
-Timestamp = Annotated[str, Field()]
+datetime_regex = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$"
+Timestamp = Annotated[str, Field(..., pattern=datetime_regex)]
 
 
 class Playbook(BaseModel):

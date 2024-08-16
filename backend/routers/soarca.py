@@ -7,7 +7,7 @@ from typing import List
 
 import httpx
 
-from models.models import Playbook
+from models.playbook import Playbook
 from database import db
 
 
