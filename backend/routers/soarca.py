@@ -27,7 +27,7 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
     """
     Execute a playbook.
 
-    Args:
+    Arguments:
     - playbook: The Playbook object to be executed.
 
     Returns:
@@ -67,7 +67,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
     """
     Monitors a playbook execution.
 
-    Args:
+    Arguments:
     - execution_id: The execution_id of the execution to monitor.
     - start_time: The start time of the execution.
     - timeout_seconds: The maximum time (in seconds) to monitor the execution before timing out.
@@ -164,7 +164,7 @@ async def get_ongoing_executions():
 #     """
 #     Retrieve a reporter from SOARCA by its ID.
 
-#     Args:
+#     Arguments:
 #     - id: The reporter ID.
 
 #     Returns:
