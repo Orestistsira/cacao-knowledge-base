@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 from routers.playbooks import router as playbooks_router
+from routers.soarca import router as soarca_router
 
-
-load_dotenv()
 
 app = FastAPI()
 
@@ -19,3 +17,6 @@ app.add_middleware(
 
 # Include playbooks router
 app.include_router(playbooks_router)
+
+# Include soarca router
+app.include_router(soarca_router)
