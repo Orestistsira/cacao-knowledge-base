@@ -1,6 +1,7 @@
 from __future__ import annotations
+from datetime import datetime
 from typing_extensions import Annotated
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import List, Dict, Any
 from enum import Enum
 
@@ -45,6 +46,25 @@ class Playbook(BaseModel):
     extension_definitions: Dict[str, ExtensionDefinition] | None = None
     data_marking_definitions: Dict[str, DataMarking] | None = None
     signatures: List[Signature] | None = None
+
+    @model_validator(mode='before')
+    def check_timestamps(cls, data: Any) -> Any:
+        created = data.get("created")
+        modified = data.get("modified")
+
+        # Ensure both fields are provided
+        if not created or not modified:
+            raise ValueError("Both 'created' and 'modified' timestamps must be provided.")
+
+        # Convert string timestamps to datetime objects
+        created_time = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S.%fZ")
+        modified_time = datetime.strptime(modified, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        # Check if 'created' timestamp is older than 'modified' timestamp
+        if modified_time < created_time:
+            raise ValueError("'created' timestamp must be older than 'modified' timestamp.")
+
+        return data
 
 
 class PlaybookInDB(Playbook):
