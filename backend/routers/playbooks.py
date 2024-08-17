@@ -28,6 +28,13 @@ async def create_playbook(playbook: Playbook):
     - A dictionary containing the Mongo ID of the newly created playbook.
     """
 
+    # Check if 'created' and 'modified' are equal
+    if playbook.created != playbook.modified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The 'created' and 'modified' properties must be equal."
+        )
+
     playbook = playbook.model_dump()
 
     result = playbooks_collection.insert_one(playbook)
@@ -118,6 +125,7 @@ async def get_playbook(id: str):
     if playbook:
         playbook["_id"] = str(playbook["_id"])
         return playbook
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
@@ -138,6 +146,33 @@ async def update_playbook(id: str, playbook_update: Playbook):
 
     playbook_update = playbook_update.model_dump()
 
+    # Retrieve the existing playbook from the database
+    existing_playbook = playbooks_collection.find_one({"id": id})
+    if not existing_playbook:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Playbook not found."
+        )
+    
+    # Convert string timestamps to datetime objects
+    created_time = datetime.strptime(playbook_update["created"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    modified_time = datetime.strptime(playbook_update["modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    existing_modified_time = datetime.strptime(existing_playbook["modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    # Check if 'modified' timestamp is more recent than 'created' timestamp
+    if modified_time <= created_time:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="'modified' timestamp must be more recent than 'created' timestamp."
+        )
+    
+    # Check if 'modified' timestamp is more recent than the stored 'modified' timestamp
+    if modified_time <= existing_modified_time:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The new 'modified' timestamp must be more recent than the existing 'modified' timestamp."
+        )
+
     # Update playbook
     result = playbooks_collection.update_one(
         {
@@ -151,7 +186,8 @@ async def update_playbook(id: str, playbook_update: Playbook):
     if result.modified_count == 1:
         history_collection.insert_one(playbook_update)
         return {"message": "Playbook updated"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+    
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Playbook not updated")
 
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_playbook(id: str):
@@ -171,6 +207,7 @@ async def delete_playbook(id: str):
     result = playbooks_collection.delete_one({"id": id})
     if result.deleted_count == 1:
         return {"message": "Playbook deleted successfully"}
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @router.get("/{id}/history", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
@@ -196,6 +233,7 @@ async def get_playbook_history(id: str, limit: int=50):
         for playbook in playbook_history:
             playbook["_id"] = str(playbook["_id"])
         return playbook_history
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbooks not found for the given Playbook ID")
 
 @router.delete("/{id}/history", response_model=dict, status_code=status.HTTP_200_OK)
@@ -216,6 +254,7 @@ async def delete_playbook_history(id: str):
     result = history_collection.delete_many({"id": id})
     if result.deleted_count > 0:
         return {"message": f"History playbooks deleted successfully"}
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbooks not found for the given Playbook ID")
 
 @router.get("/history/{history_id}", response_model=PlaybookInDB, status_code=status.HTTP_200_OK)
@@ -237,6 +276,7 @@ async def get_history_playbook(history_id: str):
     if playbook:
         playbook["_id"] = str(playbook["_id"])
         return playbook
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @router.post("/rollback/{history_id}", response_model=dict, status_code=status.HTTP_200_OK)
@@ -266,6 +306,8 @@ async def rollback_playbook(history_id: str):
         if result.modified_count == 1:
             history_collection.insert_one(history_playbook)
             return {"message": "Playbook restored successfully"}
+        
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="History playbook not found")
   
