@@ -28,13 +28,6 @@ async def create_playbook(playbook: Playbook):
     - A dictionary containing the Mongo ID of the newly created playbook.
     """
 
-    # Check if 'created' and 'modified' are equal
-    if playbook.created != playbook.modified:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The 'created' and 'modified' properties must be equal."
-        )
-
     playbook = playbook.model_dump()
 
     result = playbooks_collection.insert_one(playbook)
