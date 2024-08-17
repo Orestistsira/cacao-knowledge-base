@@ -8,6 +8,7 @@ from typing import List
 import httpx
 
 from models.playbook import Playbook
+from models.execution import ExecutionInDB
 from database import db
 
 
@@ -23,7 +24,7 @@ playbook_executions = db.executions
 soarca_url = os.getenv("SOARCA_URI")
 
 @router.post("/trigger/playbook", response_model=dict, status_code=status.HTTP_200_OK)
-async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
+async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks):
     """
     Execute a playbook.
 
@@ -34,9 +35,11 @@ async def trigger_playbook(playbook: dict, background_tasks: BackgroundTasks):
     - A dictionary containing the execution-id and the playbook-id.
     """
 
+    # Serialize playbook object excluding none values
+    playbook = playbook.model_dump(exclude_none=True)
+
     try:
         async with httpx.AsyncClient() as client:
-            # TODO: Set playbook dict to Playbook object - serialize datetime and remove null values
             response = await client.post(f"{soarca_url}/trigger/playbook", json=playbook)
             response.raise_for_status()
             result = response.json()
@@ -118,7 +121,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
             }
         )
 
-@router.get("/executions/", response_model=List[dict])
+@router.get("/executions/", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
 async def get_executions():
     """
     Retrieve all executions.
@@ -132,7 +135,7 @@ async def get_executions():
         execution["_id"] = str(execution["_id"])
     return executions
 
-@router.get("/executions/ongoing", response_model=List[dict])
+@router.get("/executions/ongoing", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
 async def get_ongoing_executions():
     """
     Retrieve ongoing executions.

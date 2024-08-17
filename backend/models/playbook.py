@@ -48,7 +48,7 @@ class Playbook(BaseModel):
 
 
 class PlaybookInDB(Playbook):
-    mongo_id: str = Field(..., alias='_id')
+    mongo_id: str = Field(..., alias="_id")
 
 
 class PlaybookMeta(BaseModel):
@@ -102,14 +102,14 @@ class Variable(BaseModel):
 
 
 class WorkflowStepType(str, Enum):
-    start = 'start'
-    end = 'end'
-    action = 'action'
-    playbook_action = 'playbook-action'
-    parallel = 'parallel'
-    if_condition = 'if-condition'
-    while_condition = 'while-condition'
-    switch_condition = 'switch-condition'
+    start = "start"
+    end = "end"
+    action = "action"
+    playbook_action = "playbook-action"
+    parallel = "parallel"
+    if_condition = "if-condition"
+    while_condition = "while-condition"
+    switch_condition = "switch-condition"
 
 
 class Command(BaseModel):
@@ -192,12 +192,12 @@ class Contact(BaseModel):
 
 
 class AddressType(str, Enum):
-    dname = 'dname',
-    ipv4 = 'ipv4',
-    ipv6 = 'ipv6',
-    l2mac = 'l2mac',
-    vlan = 'vlan',
-    url = 'url',
+    dname = "dname",
+    ipv4 = "ipv4",
+    ipv6 = "ipv6",
+    l2mac = "l2mac",
+    vlan = "vlan",
+    url = "url",
 
 
 class AgentTarget(BaseModel):
@@ -221,23 +221,23 @@ class ExtensionDefinition(BaseModel):
     name: str
     description: str | None = None
     created_by: str
-    my_schema: str = Field(..., alias='schema')
+    my_schema: str = Field(..., alias="schema")
     version: str
     external_references: List[ExternalReference] | None = None
 
 
 class DataMarkingType(str, Enum):
-    marking_statement = 'marking-statement'
-    marking_tlp = 'marking-tlp'
-    marking_iep = 'marking-iep'
+    marking_statement = "marking-statement"
+    marking_tlp = "marking-tlp"
+    marking_iep = "marking-iep"
 
 
 class DataMarkingTlpLevel(str, Enum):
-    tlp_red = 'TLP:RED'
-    tlp_amber = 'TLP:AMBER'
-    tlp_amber_strict = 'TLP:AMBER+STRICT'
-    tlp_green = 'TLP:GREEN'
-    tlp_clear = 'TLP:CLEAR'
+    tlp_red = "TLP:RED"
+    tlp_amber = "TLP:AMBER"
+    tlp_amber_strict = "TLP:AMBER+STRICT"
+    tlp_green = "TLP:GREEN"
+    tlp_clear = "TLP:CLEAR"
 
 
 class DataMarking(BaseModel):
