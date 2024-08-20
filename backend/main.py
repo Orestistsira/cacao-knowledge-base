@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.playbooks import router as playbooks_router
 from routers.soarca import router as soarca_router
+from routers.stats import router as stats_router
 
 
 app = FastAPI()
@@ -20,3 +21,6 @@ app.include_router(playbooks_router)
 
 # Include soarca router
 app.include_router(soarca_router)
+
+# Include stats router
+app.include_router(stats_router)

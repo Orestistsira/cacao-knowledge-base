@@ -1,0 +1,72 @@
+# Aggregation pipeline to calculate the overall average runtime
+avg_runtime_pipeline = [
+    {
+        "$group": {
+            "_id": None,  # Group all documents together
+            "overall_average_runtime": {"$avg": "$runtime"}  # Calculate the average runtime
+        }
+    }
+]
+
+# Aggregation pipeline to calculate average runtime per playbook
+avg_runtime_per_playbook_pipeline = [
+    {
+        "$group": {
+            "_id": "$playbook_id",  # Group by playbook_id
+            "average_runtime": {"$avg": "$runtime"}  # Calculate average runtime
+        }
+    },
+    {
+        "$project": {
+            "_id": 0,  # Exclude _id from the output
+            "playbook_id": "$_id",  # Include playbook_id in the output
+            "average_runtime": 1  # Include average_runtime in the output
+        }
+    }
+]
+
+avg_comp_rate_pipeline = [
+    # Step 1: Group by playbook_id to count total and completed executions
+    {
+        "$group": {
+            "_id": "$playbook_id",  # Group by playbook_id
+            "total_executions": {"$sum": 1},  # Count total executions
+            "completed_executions": {
+                "$sum": {
+                    "$cond": [
+                        {"$eq": ["$status", "successfully_executed"]},  # Check if status is 'successfully_executed'
+                        1,  # Count as 1 if true
+                        0   # Count as 0 if false
+                    ]
+                }
+            }
+        }
+    },
+    # Step 2: Calculate completion rate for each playbook
+    {
+        "$project": {
+            "playbook_id": "$_id",
+            "completion_rate": {
+                "$cond": [
+                    {"$gt": ["$total_executions", 0]},  # Avoid division by zero
+                    {"$divide": ["$completed_executions", "$total_executions"]},  # Calculate rate
+                    0  # Set to 0 if no executions
+                ]
+            }
+        }
+    },
+    # Step 3: Calculate the average completion rate
+    {
+        "$group": {
+            "_id": None,
+            "average_completion_rate": {"$avg": "$completion_rate"}  # Compute average rate
+        }
+    },
+    # Step 4: Format the output
+    {
+        "$project": {
+            "_id": 0,
+            "average_completion_rate": 1
+        }
+    }
+]
