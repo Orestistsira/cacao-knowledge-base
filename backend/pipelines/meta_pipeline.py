@@ -57,7 +57,7 @@ meta_pipeline = [
     },
     {
         "$project": {
-            "_id": 1,
+            "_id": 0,
             "spec_version": 1,
             "id": 1,
             "name": 1,
