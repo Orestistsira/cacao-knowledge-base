@@ -5,7 +5,8 @@ from fastapi import HTTPException, Query, status
 from typing import Annotated, List
 from bson import ObjectId
 
-from models.playbook import Playbook, PlaybookInDB
+from pipelines.meta_pipeline import meta_pipeline
+from models.playbook import Playbook, PlaybookInDB, PlaybookMeta
 from database import db
 
 router = APIRouter(
@@ -52,6 +53,21 @@ async def get_playbooks(limit: int=50):
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
+
+@router.get("/meta", response_model=List[PlaybookMeta], status_code=status.HTTP_200_OK)
+async def get_playbooks_meta():
+    """
+    Retrieve a list of playbooks metadata.
+
+    Arguments:
+    - limit: The maximum number of playbook metadata to retrieve (default is 50).
+
+    Returns:
+    - A list of playbook metadata objects.
+    """
+
+    playbooks_meta = list(playbooks_collection.aggregate(meta_pipeline))
+    return playbooks_meta
 
 @router.get("/search", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
 async def search_playbooks(

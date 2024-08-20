@@ -72,7 +72,6 @@ class PlaybookInDB(Playbook):
 
 
 class PlaybookMeta(BaseModel):
-    type: str
     spec_version: str
     id: str
     name: str
@@ -80,14 +79,23 @@ class PlaybookMeta(BaseModel):
     playbook_types: List[str] | None = None
     playbook_activities: List[str] | None = None
     playbook_processing_summary: PlaybookProcessingSummary | None = None
-    created: Timestamp
-    modified: Timestamp
+    created_by: str
+    created: datetime
+    modified: datetime
     revoked: bool | None = None
+    valid_from: Timestamp | None = None
+    valid_until: Timestamp | None = None
+    derived_from: List[str] | None = None
+    related_to: List[str] | None = None
     priority: int | None = None
     severity: int | None = None
     impact: int | None = None
     industry_sectors: List[str] | None = None
     labels: List[str] | None = None
+    external_references: List[ExternalReference] | None = None
+    markings: List[str] | None = None
+    last_executed: datetime | None = None
+    is_active: bool
 
 
 class ExternalReference(BaseModel):
