@@ -19,15 +19,22 @@ async def count_playbooks():
     playbook_count = playbooks_collection.count_documents({})
     return {"playbook_count": playbook_count}
 
+@router.get("/playbooks/active-count", response_model=dict, status_code=status.HTTP_200_OK)
+async def count_active_playbooks():
+    active_playbooks_count = playbooks_collection.count_documents({"revoked": False})
+    return {"active_playbooks_count": active_playbooks_count}
+
 @router.get("/executions/count", response_model=dict, status_code=status.HTTP_200_OK)
 async def count_executions():
     executions_count = playbook_executions.count_documents({})
     return {"executions_count": executions_count}
 
-@router.get("/playbooks/active-count", response_model=dict, status_code=status.HTTP_200_OK)
-async def count_active_playbooks():
-    active_playbooks_count = playbooks_collection.count_documents({"revoked": False})
-    return {"active_playbooks_count": active_playbooks_count}
+@router.get("/executions/count/ongoing")
+async def count_ongoing_executions():
+    # Query to count the number of ongoing executions
+    ongoing_count = playbook_executions.count_documents({"status": "ongoing"})
+    
+    return {"ongoing_executions": ongoing_count}
 
 @router.get("/executions/average-runtime/all")
 async def get_average_runtime():
