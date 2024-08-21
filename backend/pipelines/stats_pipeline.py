@@ -3,7 +3,7 @@ avg_runtime_pipeline = [
     {
         "$group": {
             "_id": None,  # Group all documents together
-            "overall_average_runtime": {"$avg": "$runtime"}  # Calculate the average runtime
+            "average_runtime": {"$avg": "$runtime"}  # Calculate the average runtime
         }
     }
 ]
@@ -67,6 +67,46 @@ avg_comp_rate_pipeline = [
         "$project": {
             "_id": 0,
             "average_completion_rate": 1
+        }
+    }
+]
+
+comp_rate_per_playbook_pipeline = [
+    # Step 1: Group by playbook_id to count total and completed executions
+    {
+        "$group": {
+            "_id": "$playbook_id",  # Group by playbook_id
+            "total_executions": {"$sum": 1},  # Count total executions
+            "successful_executions": {
+                "$sum": {
+                    "$cond": [
+                        {"$eq": ["$status", "successfully_executed"]},  # Check if status is 'successfully_executed'
+                        1,  # Count as 1 if true
+                        0   # Count as 0 if false
+                    ]
+                }
+            }
+        }
+    },
+    # Step 2: Calculate completion rate for each playbook
+    {
+        "$project": {
+            "playbook_id": "$_id",
+            "completion_rate": {
+                "$cond": [
+                    {"$gt": ["$total_executions", 0]},  # Avoid division by zero
+                    {"$divide": ["$successful_executions", "$total_executions"]},  # Calculate rate
+                    0  # Set to 0 if no executions
+                ]
+            }
+        }
+    },
+    # Step 3: Format the output
+    {
+        "$project": {
+            "_id": 0,
+            "playbook_id": 1,
+            "completion_rate": 1
         }
     }
 ]
