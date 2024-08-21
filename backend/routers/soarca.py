@@ -149,6 +149,24 @@ async def get_ongoing_executions():
         execution["_id"] = str(execution["_id"])
     return ongoing_executions
 
+@router.get("/executions/completed", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
+async def get_completed_executions():
+    """
+    Retrieve all completed executions (i.e., those that are not ongoing).
+
+    Returns:
+    - A list of completed executions.
+    """
+
+    # Find executions where the status is not 'ongoing'
+    completed_executions = list(playbook_executions.find({"status": {"$ne": "ongoing"}}))
+    
+    # Convert MongoDB ObjectId to string for each execution
+    for execution in completed_executions:
+        execution["_id"] = str(execution["_id"])
+    
+    return completed_executions
+
 # @router.get("/reporters", response_model=List[dict], status_code=status.HTTP_200_OK)
 # async def get_reporters():
 #     """
