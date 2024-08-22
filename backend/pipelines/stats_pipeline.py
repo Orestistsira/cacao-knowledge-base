@@ -26,7 +26,13 @@ avg_runtime_per_playbook_pipeline = [
 ]
 
 avg_comp_rate_pipeline = [
-    # Step 1: Group by playbook_id to count total and completed executions
+    # Step 1: Filter out ongoing executions
+    {
+        "$match": {
+            "status": {"$ne": "ongoing"}  # Exclude ongoing executions
+        }
+    },
+    # Step 2: Group by playbook_id to count total and completed executions
     {
         "$group": {
             "_id": "$playbook_id",  # Group by playbook_id
@@ -42,7 +48,7 @@ avg_comp_rate_pipeline = [
             }
         }
     },
-    # Step 2: Calculate completion rate for each playbook
+    # Step 3: Calculate completion rate for each playbook
     {
         "$project": {
             "playbook_id": "$_id",
@@ -55,14 +61,14 @@ avg_comp_rate_pipeline = [
             }
         }
     },
-    # Step 3: Calculate the average completion rate
+    # Step 4: Calculate the average completion rate
     {
         "$group": {
             "_id": None,
             "average_completion_rate": {"$avg": "$completion_rate"}  # Compute average rate
         }
     },
-    # Step 4: Format the output
+    # Step 5: Format the output
     {
         "$project": {
             "_id": 0,
@@ -72,7 +78,13 @@ avg_comp_rate_pipeline = [
 ]
 
 comp_rate_per_playbook_pipeline = [
-    # Step 1: Group by playbook_id to count total and completed executions
+    # Step 1: Filter out ongoing executions
+    {
+        "$match": {
+            "status": {"$ne": "ongoing"}  # Exclude ongoing executions
+        }
+    },
+    # Step 2: Group by playbook_id to count total and completed executions
     {
         "$group": {
             "_id": "$playbook_id",  # Group by playbook_id
@@ -88,7 +100,7 @@ comp_rate_per_playbook_pipeline = [
             }
         }
     },
-    # Step 2: Calculate completion rate for each playbook
+    # Step 3: Calculate completion rate for each playbook
     {
         "$project": {
             "playbook_id": "$_id",
@@ -101,7 +113,7 @@ comp_rate_per_playbook_pipeline = [
             }
         }
     },
-    # Step 3: Format the output
+    # Step 4: Format the output
     {
         "$project": {
             "_id": 0,
