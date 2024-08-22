@@ -95,7 +95,7 @@ class PlaybookMeta(BaseModel):
     external_references: List[ExternalReference] | None = None
     markings: List[str] | None = None
     last_executed: datetime | None = None
-    is_active: bool
+    is_active: bool | None = None
 
 
 class ExternalReference(BaseModel):
