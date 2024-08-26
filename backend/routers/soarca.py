@@ -23,6 +23,9 @@ playbook_executions = db.executions
 
 soarca_url = os.getenv("SOARCA_URI")
 
+if not soarca_url:
+    raise ValueError("SOARCA_URI environment variable not set")
+
 @router.post("/trigger/playbook", response_model=dict, status_code=status.HTTP_200_OK)
 async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks):
     """
