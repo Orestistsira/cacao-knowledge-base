@@ -1,10 +1,11 @@
 from fastapi import APIRouter
-from datetime import datetime, timezone
+from datetime import datetime
 import re
 from fastapi import HTTPException, Query, status
 from typing import Annotated, List
 from bson import ObjectId
 
+from utils.utils import get_current_datetime_str
 from pipelines.meta_pipeline import meta_pipeline
 from models.playbook import Playbook, PlaybookInDB, PlaybookMeta
 from database import db
@@ -309,7 +310,7 @@ async def rollback_playbook(history_id: str):
 
         # Remove _id to avoid duplicate key error
         history_playbook.pop("_id")
-        history_playbook["modified"] = datetime.now(timezone.utc).isoformat("T").replace("+00:00", "Z")
+        history_playbook["modified"] = get_current_datetime_str()
         
         result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
         if result.modified_count == 1:
