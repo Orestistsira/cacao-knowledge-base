@@ -151,7 +151,7 @@ async def update_playbook(id: str, playbook_update: Playbook):
     - A message indicating the playbook was updated.
 
     Raises:
-    - HTTPException: If the playbook is not found.
+    - HTTPException: If the playbook is not found or is revoked or timestamps are invalid.
     """
 
     playbook_update = playbook_update.model_dump()
@@ -162,6 +162,13 @@ async def update_playbook(id: str, playbook_update: Playbook):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Playbook not found."
+        )
+    
+    # Check if the playbook is revoked
+    if existing_playbook["revoked"] == True:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot update a revoked playbook."
         )
     
     # Convert string timestamps to datetime objects
@@ -301,12 +308,27 @@ async def rollback_playbook(history_id: str):
     - A message indicating the playbook was restored successfully.
 
     Raises:
-    - HTTPException: If the history playbook is not found.
+    - HTTPException: If the history playbook is not found or is revoked.
     """
 
     history_playbook = history_collection.find_one({"_id": ObjectId(history_id)})
     if history_playbook is not None:
         playbook_id = history_playbook["id"]
+
+        # Retrieve the existing playbook from the database
+        existing_playbook = playbooks_collection.find_one({"id": playbook_id})
+        if not existing_playbook:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Playbook not found."
+            )
+        
+        # Check if the playbook is revoked
+        if existing_playbook["revoked"] == True:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot update a revoked playbook."
+            )
 
         # Remove _id to avoid duplicate key error
         history_playbook.pop("_id")

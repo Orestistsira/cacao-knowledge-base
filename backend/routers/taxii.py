@@ -33,7 +33,7 @@ if not taxii_username or not taxii_password:
 # Set up basic authentication
 auth = httpx.BasicAuth(taxii_username, taxii_password)
 
-# Set up headers with Accept media type
+# Set up headers with Accept media type and Content-Type
 headers = {
     "Accept": "application/taxii+json;version=2.1",
     "Content-Type": "application/taxii+json;version=2.1"
