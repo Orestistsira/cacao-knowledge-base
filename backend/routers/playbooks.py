@@ -5,7 +5,7 @@ from fastapi import HTTPException, Query, status
 from typing import Annotated, List
 from bson import ObjectId
 
-from utils.utils import get_current_datetime_str
+from utils.utils import get_current_timestamp, get_datetime_from_timestamp
 from pipelines.meta_pipeline import meta_pipeline
 from models.playbook import Playbook, PlaybookInDB, PlaybookMeta
 from database import db
@@ -172,9 +172,9 @@ async def update_playbook(id: str, playbook_update: Playbook):
         )
     
     # Convert string timestamps to datetime objects
-    created_time = datetime.strptime(playbook_update["created"], "%Y-%m-%dT%H:%M:%S.%fZ")
-    modified_time = datetime.strptime(playbook_update["modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
-    existing_modified_time = datetime.strptime(existing_playbook["modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    created_time = get_datetime_from_timestamp(playbook_update["created"])
+    modified_time = get_datetime_from_timestamp(playbook_update["modified"])
+    existing_modified_time = get_datetime_from_timestamp(existing_playbook["modified"])
 
     # Check if 'modified' timestamp is more recent than 'created' timestamp
     if modified_time <= created_time:
@@ -332,7 +332,7 @@ async def rollback_playbook(history_id: str):
 
         # Remove _id to avoid duplicate key error
         history_playbook.pop("_id")
-        history_playbook["modified"] = get_current_datetime_str()
+        history_playbook["modified"] = get_current_timestamp()
         
         result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
         if result.modified_count == 1:

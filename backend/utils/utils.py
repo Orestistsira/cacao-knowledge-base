@@ -7,8 +7,11 @@ from models.playbook import Playbook
 from models.stix import StixPlaybook
 
 
-def get_current_datetime_str() -> str:
+def get_current_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat("T").replace("+00:00", "Z")
+
+def get_datetime_from_timestamp(timestamp: str) -> datetime:
+    return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 def playbook_to_stix(playbook: Playbook) -> StixPlaybook:
     # Generate the ID and filename for the COA object
@@ -25,8 +28,8 @@ def create_stix_coa_with_playbook_extension(playbook: Playbook, coa_id: str) -> 
         "spec_version": "2.1",
         "id": coa_id,
         "created_by_ref": playbook.created_by,
-        "created": get_current_datetime_str(),
-        "modified": get_current_datetime_str(),
+        "created": get_current_timestamp(),
+        "modified": get_current_timestamp(),
         "name": "playbook",
         "description": playbook.description,
         "extensions": {

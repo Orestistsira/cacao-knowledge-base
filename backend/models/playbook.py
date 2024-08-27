@@ -49,6 +49,8 @@ class Playbook(BaseModel):
 
     @model_validator(mode="before")
     def check_timestamps(cls, data: Any) -> Any:
+        from utils.utils import get_datetime_from_timestamp
+        
         created = data.get("created")
         modified = data.get("modified")
 
@@ -57,8 +59,8 @@ class Playbook(BaseModel):
             raise ValueError("Both 'created' and 'modified' timestamps must be provided.")
 
         # Convert string timestamps to datetime objects
-        created_time = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S.%fZ")
-        modified_time = datetime.strptime(modified, "%Y-%m-%dT%H:%M:%S.%fZ")
+        created_time = get_datetime_from_timestamp(created)
+        modified_time = get_datetime_from_timestamp(modified)
 
         # Check if 'created' timestamp is older than 'modified' timestamp
         if modified_time < created_time:
