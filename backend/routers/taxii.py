@@ -1,4 +1,5 @@
 import os
+from typing import List
 from dotenv import load_dotenv
 from fastapi import HTTPException, status, APIRouter
 
@@ -7,7 +8,7 @@ import httpx
 from routers.playbooks import create_playbook
 from utils.utils import playbook_to_stix, stix_to_playbook
 from models.stix import Envelope
-from models.playbook import Playbook
+from models.playbook import Playbook, PlaybookInDB
 from database import db
 
 
@@ -17,6 +18,8 @@ router = APIRouter(
     prefix="/taxii",
     tags=["taxii"],
 )
+
+playbooks_collection = db.playbooks
 
 taxii_url = os.getenv("TAXII_URI")
 taxii_username = os.getenv("TAXII_USERNAME")
@@ -94,6 +97,8 @@ async def share_playbook(playbook: Playbook):
 
     try:
         stix_playbook = playbook_to_stix(playbook)
+
+        # TODO: Update the playbook shared_versions in the database
         return await add_object({"objects": [stix_playbook]})
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -120,8 +125,53 @@ async def save_playbook(id: str):
         # Convert STIX object to Playbook
         playbook = stix_to_playbook(stix_playbook)
 
+        # TODO: If playbook id is already in my database, update it and dont create new
+        # TODO: Update the playbook saved_versions in the database
+
         # Create Playbook
         return await create_playbook(playbook)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
+@router.get("/playbooks/to-share", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
+async def get_playbooks_to_share():
+    """
+    List playbooks that have not been shared to the TAXII server.
+
+    Returns:
+    - A list of playbooks that have not been shared to the TAXII server.
+    """
+
+    playbooks = list(playbooks_collection.find({"shared_versions": {"$ne": "$modified"}}))
+    for playbook in playbooks:
+        playbook["_id"] = str(playbook["_id"])
+    return playbooks
+
+@router.get("/playbooks/to-save", response_model=List[Playbook], status_code=status.HTTP_200_OK)
+async def get_playbooks_to_save():
+    """
+    List playbooks that have not been saved from the TAXII server.
+    Returns:
+    - A list of playbooks that have not been saved from the TAXII server.
+    """
+
+    # Get all STIX objects from TAXII server
+    try:
+        envelope_objects = await get_objects()
+        playbooks_to_save = []
+
+        for stix_playbook in envelope_objects["objects"]:
+            
+            playbook = stix_to_playbook(stix_playbook)
+            existing_playbook = playbooks_collection.find_one({"id": playbook.id})
+
+            if existing_playbook and existing_playbook.get("saved_versions"):
+                if playbook.modified not in existing_playbook.get("saved_versions"):
+                    playbooks_to_save.append(playbook)
+            else:
+                playbooks_to_save.append(playbook)
+
+        return playbooks_to_save
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
