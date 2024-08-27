@@ -40,8 +40,8 @@ headers = {
     "Content-Type": "application/taxii+json;version=2.1"
 }
 
-taxii_api_root = 'cacao-taxii'
-taxii_collection_id = '365fed99-08fa-fdcd-a1b3-fb247eb41d01'
+taxii_api_root = "cacao-taxii"
+taxii_collection_id = "365fed99-08fa-fdcd-a1b3-fb247eb41d01"
 
 @router.get("/discovery", response_model=dict, status_code=status.HTTP_200_OK)
 async def get_discovery():
@@ -120,7 +120,7 @@ async def save_playbook(id: str):
         stix_playbook_envelope = await get_object(id)
 
         # Get STIX object from envelope
-        stix_playbook = stix_playbook_envelope.get('objects')[0]
+        stix_playbook = stix_playbook_envelope.get("objects")[0]
 
         # Convert STIX object to Playbook
         playbook = stix_to_playbook(stix_playbook)

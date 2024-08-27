@@ -47,7 +47,7 @@ class Playbook(BaseModel):
     data_marking_definitions: Dict[str, DataMarking] | None = None
     signatures: List[Signature] | None = None
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     def check_timestamps(cls, data: Any) -> Any:
         created = data.get("created")
         modified = data.get("modified")

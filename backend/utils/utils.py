@@ -57,13 +57,13 @@ def create_stix_coa_with_playbook_extension(playbook: Playbook, coa_id: str) -> 
 
 def stix_to_playbook(stix_playbook: StixPlaybook) -> Playbook:
     # Extract the extension definition (assuming only one extension is present)
-    extensions = stix_playbook.get('extensions')
+    extensions = stix_playbook.get("extensions")
     extension_key = next(iter(extensions))  # Get the first (and presumably only) extension key
     extension = extensions.get(extension_key, {})
 
     # Decode the base64 encoded playbook data
     playbook_base64 = extension.get("playbook_base64", "")
-    playbook_json = base64.b64decode(playbook_base64).decode('utf-8')
+    playbook_json = base64.b64decode(playbook_base64).decode("utf-8")
     playbook_data = json.loads(playbook_json)
 
     # Create and return a Playbook object
