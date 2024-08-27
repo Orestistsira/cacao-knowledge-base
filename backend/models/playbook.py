@@ -47,10 +47,13 @@ class Playbook(BaseModel):
     data_marking_definitions: Dict[str, DataMarking] | None = None
     signatures: List[Signature] | None = None
 
+    # Field for sharing management
+    shared_versions: List[Timestamp] | None = None
+
     @model_validator(mode="before")
     def check_timestamps(cls, data: Any) -> Any:
         from utils.utils import get_datetime_from_timestamp
-        
+
         created = data.get("created")
         modified = data.get("modified")
 
