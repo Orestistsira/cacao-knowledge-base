@@ -47,10 +47,6 @@ class Playbook(BaseModel):
     data_marking_definitions: Dict[str, DataMarking] | None = None
     signatures: List[Signature] | None = None
 
-    # Added for share management
-    shared_versions: List[Timestamp] | None = None
-    saved_versions: List[Timestamp] | None = None
-
     @model_validator(mode='before')
     def check_timestamps(cls, data: Any) -> Any:
         created = data.get("created")
