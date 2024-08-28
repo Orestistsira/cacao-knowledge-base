@@ -98,6 +98,16 @@ async def share_playbook(playbook: Playbook):
     """
 
     try:
+        sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
+
+        if sharing_object:
+            if sharing_object["shared_versions"]:
+                if playbook.modified in sharing_object["shared_versions"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="You cannot share this version of the Playbook again."
+                    )
+        
         stix_playbook = playbook_to_stix(playbook)
 
         result = await add_object({"objects": [stix_playbook]})
