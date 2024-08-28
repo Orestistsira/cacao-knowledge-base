@@ -98,6 +98,7 @@ class PlaybookMeta(BaseModel):
     labels: List[str] | None = None
     external_references: List[ExternalReference] | None = None
     markings: List[str] | None = None
+    data_marking_definitions: Dict[str, DataMarking] | None = None
     last_executed: datetime | None = None
     is_active: bool | None = None
 

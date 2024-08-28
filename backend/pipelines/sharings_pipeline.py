@@ -50,6 +50,7 @@ to_share_pipeline = [
             "labels": 1,
             "external_references": 1,
             "markings": 1,
+            "data_marking_definitions": 1,
         }
     }
 ]

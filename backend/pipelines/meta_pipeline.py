@@ -43,6 +43,7 @@ meta_pipeline = [
             "labels": {"$first": "$labels"},
             "external_references": {"$first": "$external_references"},
             "markings": {"$first": "$markings"},
+            "data_marking_definitions": {"$first": "$data_marking_definitions"},
             "last_executed": {"$first": "$executions.start_time"},
             "is_active": {
                 "$first": {
@@ -80,6 +81,7 @@ meta_pipeline = [
             "labels": 1,
             "external_references": 1,
             "markings": 1,
+            "data_marking_definitions": 1,
             "last_executed": 1,
             "is_active": 1
         }
