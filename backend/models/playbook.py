@@ -72,6 +72,8 @@ class Playbook(BaseModel):
 class PlaybookInDB(Playbook):
     mongo_id: str = Field(..., alias="_id")
 
+class PlaybookWithStixId(Playbook):
+    stix_id: str
 
 class PlaybookMeta(BaseModel):
     spec_version: str

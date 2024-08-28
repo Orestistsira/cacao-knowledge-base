@@ -9,7 +9,7 @@ from routers.playbooks import create_playbook, update_playbook
 from utils.utils import playbook_to_stix, stix_to_playbook
 from pipelines.sharings_pipeline import to_share_pipeline
 from models.stix import Envelope
-from models.playbook import Playbook, PlaybookMeta
+from models.playbook import Playbook, PlaybookMeta, PlaybookWithStixId
 from database import db
 
 
@@ -149,14 +149,14 @@ async def save_playbook(id: str):
         result = None
         if existing_playbook:
             # Update Playbook
-            result = await update_playbook(playbook)
+            result = await update_playbook(playbook.id, playbook)
         else:
             # Create Playbook
             result = await create_playbook(playbook)
 
         sharings_collection.update_one(
             {"playbook_id": playbook.id},
-            {"$addToSet": {"saved_versions": playbook.modified}},
+            {"$addToSet": {"shared_versions": playbook.modified}},
             upsert=True
         )
 
@@ -177,7 +177,7 @@ async def get_playbooks_to_share():
     
     return unshared_playbooks
 
-@router.get("/playbooks/to-save", response_model=List[Playbook], status_code=status.HTTP_200_OK)
+@router.get("/playbooks/to-save", response_model=List[PlaybookWithStixId], status_code=status.HTTP_200_OK)
 async def get_playbooks_to_save():
     """
     List playbooks that have not been saved from the TAXII server.
@@ -192,6 +192,10 @@ async def get_playbooks_to_save():
 
         for stix_playbook in envelope_objects["objects"]:
             playbook = stix_to_playbook(stix_playbook)
+
+            playbook = playbook.model_dump()
+            playbook["stix_id"] = stix_playbook["id"]
+            playbook = PlaybookWithStixId(**playbook)
 
             sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
 
