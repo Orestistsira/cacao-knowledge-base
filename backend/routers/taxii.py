@@ -5,10 +5,11 @@ from fastapi import HTTPException, status, APIRouter
 
 import httpx
 
-from routers.playbooks import create_playbook
+from routers.playbooks import create_playbook, update_playbook
 from utils.utils import playbook_to_stix, stix_to_playbook
+from pipelines.sharings_pipeline import to_share_pipeline
 from models.stix import Envelope
-from models.playbook import Playbook, PlaybookInDB
+from models.playbook import Playbook, PlaybookMeta, PlaybookWithStixId
 from database import db
 
 
@@ -20,6 +21,7 @@ router = APIRouter(
 )
 
 playbooks_collection = db.playbooks
+sharings_collection = db.sharings
 
 taxii_url = os.getenv("TAXII_URI")
 taxii_username = os.getenv("TAXII_USERNAME")
@@ -96,10 +98,28 @@ async def share_playbook(playbook: Playbook):
     """
 
     try:
+        sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
+
+        if sharing_object:
+            if sharing_object["shared_versions"]:
+                if playbook.modified in sharing_object["shared_versions"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="You cannot share this version of the Playbook again."
+                    )
+        
         stix_playbook = playbook_to_stix(playbook)
 
-        # TODO: Update the playbook as shared in the database
-        return await add_object({"objects": [stix_playbook]})
+        result = await add_object({"objects": [stix_playbook]})
+
+        # Update the playbook's 'shared_versions' property in the sharing collection
+        sharings_collection.update_one(
+            {"playbook_id": playbook.id},
+            {"$addToSet": {"shared_versions": playbook.modified}},
+            upsert=True
+        )
+        
+        return result
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
@@ -124,32 +144,40 @@ async def save_playbook(id: str):
 
         # Convert STIX object to Playbook
         playbook = stix_to_playbook(stix_playbook)
+        existing_playbook = playbooks_collection.find_one({"id": playbook.id})
 
-        # TODO: If playbook id is already in my database, update it and don't create new
-        # TODO: Update the playbook as shared in the database
+        result = None
+        if existing_playbook:
+            # Update Playbook
+            result = await update_playbook(playbook.id, playbook)
+        else:
+            # Create Playbook
+            result = await create_playbook(playbook)
 
-        # Create Playbook
-        return await create_playbook(playbook)
+        sharings_collection.update_one(
+            {"playbook_id": playbook.id},
+            {"$addToSet": {"shared_versions": playbook.modified}},
+            upsert=True
+        )
+
+        return result
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@router.get("/playbooks/to-share", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
+@router.get("/playbooks/to-share", response_model=List[PlaybookMeta], status_code=status.HTTP_200_OK)
 async def get_playbooks_to_share():
     """
-    List playbooks that have not been shared to the TAXII server.
-
+    Retrieve a list of playbooks that the user has not shared.
+    
     Returns:
-    - A list of playbooks that have not been shared to the TAXII server.
+    - A list of playbooks that have not been shared by the user.
     """
 
-    # TODO: Find not shared playbooks
+    unshared_playbooks = list(playbooks_collection.aggregate(to_share_pipeline))
+    
+    return unshared_playbooks
 
-    playbooks = list(playbooks_collection.find())
-    for playbook in playbooks:
-        playbook["_id"] = str(playbook["_id"])
-    return playbooks
-
-@router.get("/playbooks/to-save", response_model=List[Playbook], status_code=status.HTTP_200_OK)
+@router.get("/playbooks/to-save", response_model=List[PlaybookWithStixId], status_code=status.HTTP_200_OK)
 async def get_playbooks_to_save():
     """
     List playbooks that have not been saved from the TAXII server.
@@ -165,8 +193,17 @@ async def get_playbooks_to_save():
         for stix_playbook in envelope_objects["objects"]:
             playbook = stix_to_playbook(stix_playbook)
 
-            # TODO: Find not shared playbooks
-            playbooks_to_save.append(playbook)
+            playbook = playbook.model_dump()
+            playbook["stix_id"] = stix_playbook["id"]
+            playbook = PlaybookWithStixId(**playbook)
+
+            sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
+
+            if not sharing_object:
+                playbooks_to_save.append(playbook)
+            else:
+                if playbook.modified not in sharing_object.get("shared_versions", []):
+                    playbooks_to_save.append(playbook)
 
         return playbooks_to_save
     except Exception as e:
