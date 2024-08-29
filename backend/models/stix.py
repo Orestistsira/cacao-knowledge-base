@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, List
 
 from models.playbook import Timestamp
@@ -44,3 +44,10 @@ class Envelope(BaseModel):
     more: bool | None = None
     next: str | None = None
     objects: List[StixPlaybook]
+
+class Sharing(BaseModel):
+    playbook_id: str
+    shared_versions: List[Timestamp] | None = None
+
+class SharingInDB(Sharing):
+    mongo_id: str = Field(..., alias="_id")

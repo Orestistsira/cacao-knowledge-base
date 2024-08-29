@@ -8,7 +8,7 @@ import httpx
 from routers.playbooks import create_playbook, update_playbook
 from utils.utils import playbook_to_stix, stix_to_playbook
 from pipelines.sharings_pipeline import to_share_pipeline
-from models.stix import Envelope
+from models.stix import Envelope, SharingInDB
 from models.playbook import Playbook, PlaybookMeta, PlaybookWithStixId
 from database import db
 
@@ -209,7 +209,51 @@ async def get_playbooks_to_save():
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@router.post("/objects", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.get("/sharings/", response_model=List[SharingInDB], status_code=status.HTTP_200_OK)
+async def get_sharings():
+    """
+    Retrieve all sharings.
+
+    Returns:
+    - A list of sharings.
+    """
+
+    sharings = list(sharings_collection.find())
+    for sharing in sharings:
+        sharing["_id"] = str(sharing["_id"])
+    return sharings
+
+@router.get("/sharings/{playbook_id}", response_model=SharingInDB, status_code=status.HTTP_200_OK)
+async def get_sharing(playbook_id: str):
+    """
+    Retrieve a sharing by its Playbook ID.
+
+    Returns:
+    - A sharing object.
+    """
+
+    sharing = sharings_collection.find_one({"playbook_id": playbook_id})
+    if sharing:
+        sharing["_id"] = str(sharing["_id"])
+        return sharing
+    
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sharing not found")
+
+@router.delete("/sharings/{playbook_id}", response_model=dict, status_code=status.HTTP_200_OK)
+async def delete_sharing(playbook_id: str):
+    """
+    Delete a sharing by its Playbook ID.
+
+    Returns:
+    - A message indicating the playbook was deleted successfully.
+    """
+
+    result = sharings_collection.delete_one({"playbook_id": playbook_id})
+    if result.deleted_count == 1:
+        return {"message": "Sharing deleted successfully"}
+    
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sharing not found")
+
 async def add_object(object: Envelope):
     """
     Add an envelope object to the cacao collection.
@@ -234,8 +278,7 @@ async def add_object(object: Envelope):
 
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    
-@router.get("/objects", response_model=Envelope, status_code=status.HTTP_200_OK)
+
 async def get_objects():
     """
     Get all objects from the cacao collection.
@@ -254,8 +297,7 @@ async def get_objects():
 
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    
-@router.get("/objects/{id}", response_model=Envelope, status_code=status.HTTP_200_OK)
+
 async def get_object(id: str):
     """
     Get an object from the cacao collection.
