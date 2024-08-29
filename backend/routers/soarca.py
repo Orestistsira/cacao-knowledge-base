@@ -170,22 +170,21 @@ async def get_completed_executions():
     
     return completed_executions
 
-@router.delete("/executions", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/executions", response_model=dict, status_code=status.HTTP_200_OK)
 async def delete_all_executions():
     """
     Delete all executions from the database.
 
     Returns:
-    - A 204 No Content status code indicating the deletion was successful.
+    - A message indicating the executions were deleted successfully.
     """
 
     # Perform the deletion
     result = playbook_executions.delete_many({})
 
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No executions found to delete.")
-
-    return None  # HTTP 204 No Content response
+    if result.deleted_count > 0:
+        return {"message": "Executions deleted successfully"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No executions found to delete.")
 
 # @router.get("/reporters", response_model=List[dict], status_code=status.HTTP_200_OK)
 # async def get_reporters():
