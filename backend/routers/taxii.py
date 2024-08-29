@@ -254,6 +254,7 @@ async def delete_sharing(playbook_id: str):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sharing not found")
 
+@router.post("/objects", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def add_object(object: Envelope):
     """
     Add an envelope object to the cacao collection.
@@ -279,6 +280,7 @@ async def add_object(object: Envelope):
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+@router.get("/objects", response_model=Envelope, status_code=status.HTTP_200_OK)
 async def get_objects():
     """
     Get all objects from the cacao collection.
@@ -298,6 +300,7 @@ async def get_objects():
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+@router.get("/objects/{id}", response_model=Envelope, status_code=status.HTTP_200_OK)
 async def get_object(id: str):
     """
     Get an object from the cacao collection.
