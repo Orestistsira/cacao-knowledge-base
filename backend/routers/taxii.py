@@ -173,9 +173,9 @@ async def get_playbooks_to_share():
     - A list of playbooks that have not been shared by the user.
     """
 
-    unshared_playbooks = list(playbooks_collection.aggregate(to_share_pipeline))
+    playbooks_to_share = list(playbooks_collection.aggregate(to_share_pipeline))
     
-    return unshared_playbooks
+    return playbooks_to_share
 
 @router.get("/playbooks/to-save", response_model=List[PlaybookWithStixId], status_code=status.HTTP_200_OK)
 async def get_playbooks_to_save():
