@@ -218,7 +218,7 @@ async def get_sharings():
     - A list of sharings.
     """
 
-    sharings = list(sharings_collection.find())
+    sharings = list(sharings_collection.find().sort("_id", -1))
     for sharing in sharings:
         sharing["_id"] = str(sharing["_id"])
     return sharings

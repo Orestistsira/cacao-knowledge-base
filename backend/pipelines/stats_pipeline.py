@@ -17,6 +17,11 @@ avg_runtime_per_playbook_pipeline = [
         }
     },
     {
+        "$sort": {
+            "_id": -1
+        }
+    },
+    {
         "$project": {
             "_id": 0,  # Exclude _id from the output
             "playbook_id": "$_id",  # Include playbook_id in the output
@@ -113,7 +118,13 @@ comp_rate_per_playbook_pipeline = [
             }
         }
     },
-    # Step 4: Format the output
+    # Step 4: Sort the output
+    {
+        "$sort": {
+            "_id": -1
+        }
+    },
+    # Step 5: Format the output
     {
         "$project": {
             "_id": 0,

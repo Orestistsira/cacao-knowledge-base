@@ -50,7 +50,7 @@ async def get_playbooks(limit: int=50):
     - A list of playbook objects.
     """
 
-    playbooks = list(playbooks_collection.find().limit(limit))
+    playbooks = list(playbooks_collection.find().sort("_id", -1).limit(limit))
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
@@ -111,7 +111,7 @@ async def search_playbooks(
         regex_labels = [f"^{re.escape(label)}" for label in labels]
         query["labels"] = {"$regex": "|".join(regex_labels)}
     
-    playbooks = list(playbooks_collection.find(query).limit(limit))
+    playbooks = list(playbooks_collection.find(query).sort("_id", -1).limit(limit))
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
@@ -243,7 +243,7 @@ async def get_playbook_history(id: str, limit: int=50):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook_history = list(history_collection.find({"id": id}).limit(limit))
+    playbook_history = list(history_collection.find({"id": id}).sort("_id", -1).limit(limit))
     if len(playbook_history) > 0:
         # Delete last playbook which is the current
         del playbook_history[-1]

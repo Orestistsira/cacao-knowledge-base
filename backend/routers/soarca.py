@@ -133,7 +133,7 @@ async def get_executions():
     - A list of executions.
     """
 
-    executions = list(playbook_executions.find())
+    executions = list(playbook_executions.find().sort("_id", -1))
     for execution in executions:
         execution["_id"] = str(execution["_id"])
     return executions
@@ -147,7 +147,7 @@ async def get_ongoing_executions():
     - A list of ongoing executions.
     """
 
-    ongoing_executions = list(playbook_executions.find({"status": "ongoing"}))
+    ongoing_executions = list(playbook_executions.find({"status": "ongoing"}).sort("_id", -1))
     for execution in ongoing_executions:
         execution["_id"] = str(execution["_id"])
     return ongoing_executions
@@ -162,7 +162,7 @@ async def get_completed_executions():
     """
 
     # Find executions where the status is not 'ongoing'
-    completed_executions = list(playbook_executions.find({"status": {"$ne": "ongoing"}}))
+    completed_executions = list(playbook_executions.find({"status": {"$ne": "ongoing"}}).sort("_id", -1))
     
     # Convert MongoDB ObjectId to string for each execution
     for execution in completed_executions:

@@ -57,6 +57,11 @@ meta_pipeline = [
         }
     },
     {
+        "$sort": {
+            "_id": -1
+        }
+    },
+    {
         "$project": {
             "_id": 0,
             "spec_version": 1,

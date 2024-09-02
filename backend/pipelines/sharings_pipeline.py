@@ -24,6 +24,12 @@ to_share_pipeline = [
             ]
         }
     },
+    # Sort by _id
+    {
+        "$sort": {
+            "_id": -1
+        }
+    },
     # Project the desired fields
     {
         "$project": {
