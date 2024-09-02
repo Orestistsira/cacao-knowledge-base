@@ -243,7 +243,7 @@ async def get_playbook_history(id: str, limit: int=50):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook_history = list(history_collection.find({"id": id}).sort("_id", -1).limit(limit))
+    playbook_history = list(history_collection.find({"id": id}).sort("_id", 1).limit(limit))
     if len(playbook_history) > 0:
         # Delete last playbook which is the current
         del playbook_history[-1]
