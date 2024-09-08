@@ -8,7 +8,7 @@ from typing import List
 import httpx
 
 from models.playbook import Playbook
-from models.execution import ExecutionInDB
+from models.execution import ExecutionInDB, StatusType
 from database import db
 
 
@@ -55,7 +55,7 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
             playbook_executions.insert_one({
                 "playbook_id": playbook_id,
                 "execution_id": execution_id,
-                "status": "ongoing",
+                "status": StatusType.ongoing,
                 "start_time": start_time
             })
 
@@ -66,6 +66,27 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
 
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
+
+def update_execution_status(execution_id: str, status: str, end_time: datetime, runtime: float):
+    """
+    Updates the playbook execution status in the database.
+
+    Arguments:
+    - execution_id: The ID of the playbook execution.
+    - status: The status to set for the playbook execution.
+    - end_time: The time the execution ended.
+    - runtime: The total runtime of the execution in seconds.
+    """
+
+    update_data = {
+        "status": status,
+        "end_time": end_time,
+        "runtime": runtime
+    }
+
+    # Assuming playbook_executions is a MongoDB collection
+    playbook_executions.update_one({"execution_id": execution_id}, {"$set": update_data})
     
 async def monitor_playbook_execution(execution_id: str, start_time: datetime, timeout_seconds: int = 3600):
     """
@@ -91,16 +112,12 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
                     end_time = datetime.now(timezone.utc)
 
                     # Check if the playbook execution has completed
-                    if reporter_info["status"] != "ongoing":
-                        playbook_executions.update_one(
-                            {"execution_id": execution_id},
-                            {
-                                "$set": {
-                                    "status": reporter_info["status"], 
-                                    "end_time": end_time, 
-                                    "runtime": (end_time - start_time).total_seconds()
-                                }
-                            }
+                    if reporter_info["status"] != StatusType.ongoing:
+                        update_execution_status(
+                            execution_id, 
+                            reporter_info["status"], 
+                            end_time, 
+                            (end_time - start_time).total_seconds()
                         )
                         break
 
@@ -113,45 +130,33 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
         # Handle the case where the monitoring times out
         end_time = datetime.now(timezone.utc)
 
-        playbook_executions.update_one(
-            {"execution_id": execution_id},
-            {
-                "$set": {
-                    "status": "timeout_error", 
-                    "end_time": end_time,
-                    "runtime": (end_time - start_time).total_seconds()
-                }
-            }
+        update_execution_status(
+            execution_id,
+            StatusType.timeout_error,
+            end_time, 
+            (end_time - start_time).total_seconds()
         )
 
     except httpx.HTTPError:
         # Handle the case where an http error occures
         end_time = datetime.now(timezone.utc)
 
-        playbook_executions.update_one(
-            {"execution_id": execution_id},
-            {
-                "$set": {
-                    "status": "server_side_error", 
-                    "end_time": end_time,
-                    "runtime": (end_time - start_time).total_seconds()
-                }
-            }
+        update_execution_status(
+            execution_id,
+            StatusType.server_side_error,
+            end_time, 
+            (end_time - start_time).total_seconds()
         )
 
     except Exception:
         # Handle the case where a client exception occures
         end_time = datetime.now(timezone.utc)
 
-        playbook_executions.update_one(
-            {"execution_id": execution_id},
-            {
-                "$set": {
-                    "status": "client_side_error", 
-                    "end_time": end_time,
-                    "runtime": (end_time - start_time).total_seconds()
-                }
-            }
+        update_execution_status(
+            execution_id,
+            StatusType.client_side_error,
+            end_time, 
+            (end_time - start_time).total_seconds()
         )
 
 @router.get("/executions/", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
