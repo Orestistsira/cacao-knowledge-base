@@ -124,6 +124,36 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
             }
         )
 
+    except httpx.HTTPError:
+        # Handle the case where an http error occures
+        end_time = datetime.now(timezone.utc)
+
+        playbook_executions.update_one(
+            {"execution_id": execution_id},
+            {
+                "$set": {
+                    "status": "server_side_error", 
+                    "end_time": end_time,
+                    "runtime": (end_time - start_time).total_seconds()
+                }
+            }
+        )
+
+    except Exception:
+        # Handle the case where a client exception occures
+        end_time = datetime.now(timezone.utc)
+
+        playbook_executions.update_one(
+            {"execution_id": execution_id},
+            {
+                "$set": {
+                    "status": "client_side_error", 
+                    "end_time": end_time,
+                    "runtime": (end_time - start_time).total_seconds()
+                }
+            }
+        )
+
 @router.get("/executions/", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
 async def get_executions():
     """
