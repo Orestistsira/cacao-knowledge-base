@@ -60,7 +60,7 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
             })
 
             # Start agent on background to monitor playbook execution
-            background_tasks.add_task(monitor_playbook_execution, execution_id, start_time)
+            background_tasks.add_task(monitor_execution, execution_id, start_time)
 
             return {"playbook_id": playbook_id, "execution_id": execution_id}
 
@@ -68,9 +68,9 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
 
-def update_execution_status(execution_id: str, status: str, end_time: datetime, runtime: float):
+def update_execution(execution_id: str, status: str, end_time: datetime, runtime: float):
     """
-    Updates the playbook execution status in the database.
+    Updates the playbook execution object in the database.
 
     Arguments:
     - execution_id: The ID of the playbook execution.
@@ -88,7 +88,7 @@ def update_execution_status(execution_id: str, status: str, end_time: datetime, 
     # Assuming playbook_executions is a MongoDB collection
     playbook_executions.update_one({"execution_id": execution_id}, {"$set": update_data})
     
-async def monitor_playbook_execution(execution_id: str, start_time: datetime, timeout_seconds: int = 3600):
+async def monitor_execution(execution_id: str, start_time: datetime, timeout_seconds: int = 3600):
     """
     Monitors a playbook execution.
 
@@ -113,7 +113,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
 
                     # Check if the playbook execution has completed
                     if reporter_info["status"] != StatusType.ongoing:
-                        update_execution_status(
+                        update_execution(
                             execution_id, 
                             reporter_info["status"], 
                             end_time, 
@@ -130,7 +130,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
         # Handle the case where the monitoring times out
         end_time = datetime.now(timezone.utc)
 
-        update_execution_status(
+        update_execution(
             execution_id,
             StatusType.timeout_error,
             end_time, 
@@ -141,7 +141,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
         # Handle the case where an http error occures
         end_time = datetime.now(timezone.utc)
 
-        update_execution_status(
+        update_execution(
             execution_id,
             StatusType.server_side_error,
             end_time, 
@@ -152,7 +152,7 @@ async def monitor_playbook_execution(execution_id: str, start_time: datetime, ti
         # Handle the case where a client exception occures
         end_time = datetime.now(timezone.utc)
 
-        update_execution_status(
+        update_execution(
             execution_id,
             StatusType.client_side_error,
             end_time, 
