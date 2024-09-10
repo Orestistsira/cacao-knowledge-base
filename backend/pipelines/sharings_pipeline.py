@@ -1,27 +1,35 @@
 to_share_pipeline = [
-    # Perform a lookup to join with shared_playbooks collection
+    # Perform a lookup to join with sharings collection
     {
         "$lookup": {
             "from": "sharings",
-            "localField": "id",  # assuming playbook_id is 'id' in playbooks collection
+            "localField": "id",  # Assuming playbook_id is 'id' in playbooks collection
             "foreignField": "playbook_id",
             "as": "sharings"
         }
     },
-    # Unwind the sharings array to check each playbook's shared versions
+    # Unwind the sharings array
     {
         "$unwind": {
             "path": "$sharings",
             "preserveNullAndEmptyArrays": True  # Keep playbooks without shared data
         }
     },
-    # Filter out playbooks where 'modified' exists in shared versions
+    # Add 'shared' field based on whether the 'modified' exists in shared_versions
     {
-        "$match": {
-            "$or": [
-                {"sharings.shared_versions": {"$exists": False}},
-                {"$expr": {"$not": {"$in": ["$modified", "$sharings.shared_versions"]}}}
-            ]
+        "$addFields": {
+            "shared": {
+                "$cond": {
+                    "if": {
+                        "$in": [
+                            "$modified", 
+                            { "$ifNull": ["$sharings.shared_versions", []] }
+                        ]
+                    },
+                    "then": True,
+                    "else": False
+                }
+            }
         }
     },
     # Sort by _id
@@ -30,7 +38,7 @@ to_share_pipeline = [
             "_id": -1
         }
     },
-    # Project the desired fields
+    # Project the desired fields along with 'shared'
     {
         "$project": {
             "_id": 0,
@@ -57,6 +65,7 @@ to_share_pipeline = [
             "external_references": 1,
             "markings": 1,
             "data_marking_definitions": 1,
+            "shared": 1
         }
     }
 ]

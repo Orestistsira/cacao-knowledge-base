@@ -72,8 +72,11 @@ class Playbook(BaseModel):
 class PlaybookInDB(Playbook):
     mongo_id: str = Field(..., alias="_id")
 
+
 class PlaybookWithStixId(Playbook):
     stix_id: str
+    shared: bool | None = None
+
 
 class PlaybookMeta(BaseModel):
     spec_version: str
@@ -101,6 +104,7 @@ class PlaybookMeta(BaseModel):
     data_marking_definitions: Dict[str, DataMarking] | None = None
     last_executed: datetime | None = None
     is_active: bool | None = None
+    shared: bool | None = None
 
 
 class ExternalReference(BaseModel):

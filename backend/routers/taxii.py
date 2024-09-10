@@ -167,10 +167,10 @@ async def save_playbook(id: str):
 @router.get("/playbooks/to-share", response_model=List[PlaybookMeta], status_code=status.HTTP_200_OK)
 async def get_playbooks_to_share():
     """
-    Retrieve a list of playbooks that the user has not shared.
-    
+    Retrieve a list of playbooks to share.
+
     Returns:
-    - A list of playbooks that have not been shared by the user.
+    - A list of playbooks with the shared property marked accordingly.
     """
 
     playbooks_to_share = list(playbooks_collection.aggregate(to_share_pipeline))
@@ -199,11 +199,14 @@ async def get_playbooks_to_save():
 
             sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
 
-            if not sharing_object:
-                playbooks_to_save.append(playbook)
+            if sharing_object:
+                # Set 'shared' field based on whether 'modified' is in 'shared_versions'
+                playbook.shared = playbook.modified in sharing_object.get("shared_versions", [])
             else:
-                if playbook.modified not in sharing_object.get("shared_versions", []):
-                    playbooks_to_save.append(playbook)
+                # If no sharing object exists, it's not shared
+                playbook.shared = False
+
+            playbooks_to_save.append(playbook)
 
         return playbooks_to_save
     except Exception as e:

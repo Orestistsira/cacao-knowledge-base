@@ -14,11 +14,6 @@ meta_pipeline = [
         }
     },
     {
-        "$sort": {
-            "executions.start_time": -1
-        }
-    },
-    {
         "$group": {
             "_id": "$_id",  # Group by the MongoDB ObjectId to retain uniqueness
             "spec_version": {"$first": "$spec_version"},
