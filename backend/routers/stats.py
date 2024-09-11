@@ -95,7 +95,6 @@ async def get_average_runtime_per_playbook():
 
     return playbook_averages
 
-@router.get("/playbooks/count", response_model=dict, status_code=status.HTTP_200_OK)
 async def count_playbooks():
     """
     Retrieve the total number of playbooks in the database.
@@ -107,7 +106,6 @@ async def count_playbooks():
     playbook_count = await playbooks_collection.count_documents({})
     return {"playbook_count": playbook_count}
 
-@router.get("/playbooks/active-count", response_model=dict, status_code=status.HTTP_200_OK)
 async def count_active_playbooks():
     """
     Retrieve the number of active playbooks (not revoked).
@@ -119,7 +117,6 @@ async def count_active_playbooks():
     active_playbooks_count = await playbooks_collection.count_documents({"revoked": False})
     return {"active_playbooks_count": active_playbooks_count}
 
-@router.get("/executions/count", response_model=dict, status_code=status.HTTP_200_OK)
 async def count_executions():
     """
     Retrieve the total number of executions in the database.
@@ -131,7 +128,6 @@ async def count_executions():
     executions_count = await playbook_executions.count_documents({})
     return {"executions_count": executions_count}
 
-@router.get("/executions/count/ongoing", response_model=dict, status_code=status.HTTP_200_OK)
 async def count_ongoing_executions():
     """
     Retrieve the number of ongoing executions.
@@ -145,7 +141,6 @@ async def count_ongoing_executions():
     
     return {"ongoing_executions": ongoing_count}
 
-@router.get("/executions/average-runtime/all", response_model=dict, status_code=status.HTTP_200_OK)
 async def get_average_runtime():
     """
     Retrieve the average runtime of all playbook executions.
@@ -162,7 +157,6 @@ async def get_average_runtime():
 
     return {"average_runtime": average_runtime}
 
-@router.get("/executions/average-completion-rate/all", response_model=dict, status_code=status.HTTP_200_OK)
 async def get_average_completion_rate():
     """
     Retrieve the average completion rate of all playbooks.

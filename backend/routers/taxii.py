@@ -123,13 +123,13 @@ async def share_playbook(playbook: Playbook):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@router.post("/save/playbook/{id}", response_model=dict, status_code=status.HTTP_201_CREATED)
-async def save_playbook(id: str):
+@router.post("/save/playbook/{object_id}", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def save_playbook(object_id: str):
     """
     Save a playbook from the TAXII Server.
 
     Arguments:
-    - id: The id of the envelope object to get from the collection.
+    - object_id: The id of the envelope object to get from the collection.
 
     Returns:
     - A dictionary containing the Mongo ID of the newly created playbook.
@@ -137,7 +137,7 @@ async def save_playbook(id: str):
 
     try:
         # Get envelope from TAXII server
-        stix_playbook_envelope = await get_object(id)
+        stix_playbook_envelope = await get_object(object_id)
 
         # Get STIX object from envelope
         stix_playbook = stix_playbook_envelope.get("objects")[0]
@@ -257,7 +257,6 @@ async def delete_sharing(playbook_id: str):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sharing not found")
 
-@router.post("/objects", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def add_object(object: Envelope):
     """
     Add an envelope object to the cacao collection.
@@ -283,7 +282,6 @@ async def add_object(object: Envelope):
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.get("/objects", response_model=Envelope, status_code=status.HTTP_200_OK)
 async def get_objects():
     """
     Get all objects from the cacao collection.
@@ -303,13 +301,12 @@ async def get_objects():
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.get("/objects/{id}", response_model=Envelope, status_code=status.HTTP_200_OK)
-async def get_object(id: str):
+async def get_object(object_id: str):
     """
     Get an object from the cacao collection.
 
     Arguments:
-    - id: The id of the envelope object to get from the collection.
+    - object_id: The id of the envelope object to get from the collection.
 
     Returns:
     - An envelope object.
@@ -317,7 +314,7 @@ async def get_object(id: str):
 
     try:
         async with httpx.AsyncClient(auth=auth, headers=headers) as client:
-            response = await client.get(f"{taxii_url}/{taxii_api_root}/collections/{taxii_collection_id}/objects/{id}/")
+            response = await client.get(f"{taxii_url}/{taxii_api_root}/collections/{taxii_collection_id}/objects/{object_id}/")
             response.raise_for_status()
             result = response.json()
 

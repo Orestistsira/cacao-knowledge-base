@@ -187,6 +187,40 @@ async def get_executions():
         execution["_id"] = str(execution["_id"])
     return executions
 
+@router.get("/executions/{execution_id}", response_model=ExecutionInDB, status_code=status.HTTP_200_OK)
+async def get_execution(execution_id: str):
+    """
+    Retrieve an execution object by its execution ID.
+
+    Returns:
+    - An execution object.
+    """
+
+    execution = await playbook_executions.find_one({"execution_id": execution_id})
+    if execution:
+        execution["_id"] = str(execution["_id"])
+        return execution
+    
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution not found")
+
+@router.delete("/executions/{execution_id}", response_model=dict, status_code=status.HTTP_200_OK)
+async def delete_playbook(execution_id: str):
+    """
+    Delete an execution by its execution ID.
+
+    Arguments:
+    - execution_id: The execution ID of the execution to delete.
+
+    Returns:
+    - A message indicating the execution was deleted successfully.
+    """
+
+    result = await playbook_executions.delete_one({"execution_id": execution_id})
+    if result.deleted_count == 1:
+        return {"message": "Execution deleted successfully"}
+    
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution not found")
+
 @router.get("/executions/ongoing", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
 async def get_ongoing_executions():
     """
@@ -234,28 +268,3 @@ async def delete_all_executions():
     if result.deleted_count > 0:
         return {"message": "Executions deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No executions found to delete.")
-
-# @router.get("/reporters", response_model=List[dict], status_code=status.HTTP_200_OK)
-# async def get_reporters():
-#     """
-#     Retrieve all the reporters from SOARCA.
-
-#     Returns:
-#     - A list of reporter objects.
-#     """
-
-#     raise NotImplementedError
-
-# @router.get("/reporters/{id}", response_model=dict, status_code=status.HTTP_200_OK)
-# async def get_reporter(id: str):
-#     """
-#     Retrieve a reporter from SOARCA by its ID.
-
-#     Arguments:
-#     - id: The reporter ID.
-
-#     Returns:
-#     - A reporter object.
-#     """
-
-#     raise NotImplementedError

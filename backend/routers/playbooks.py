@@ -64,50 +64,6 @@ async def get_playbooks_meta():
     playbooks_meta = await playbooks_collection.aggregate(meta_pipeline).to_list(None)
     return playbooks_meta
 
-@router.get("/search", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
-async def search_playbooks(
-    name: str | None = None,
-    created_by: str | None = None,
-    created_after: datetime | None = None,
-    created_until: datetime | None = None,
-    revoked: bool | None = None,
-    labels: Annotated[list[str] | None, Query()] = None
-):
-    """
-    Search for playbooks based on various criteria.
-
-    Arguments:
-    - name: Search by playbook name.
-    - created_by: Search by the creator of the playbook.
-    - created_after: Search for playbooks created after a certain date.
-    - created_until: Search for playbooks created until a certain date.
-    - revoked: Search for playbooks that are revoked.
-    - labels: Search for playbooks with specific labels.
-
-    Returns:
-    - A list of playbook objects that match the search criteria.
-    """
-
-    query = {}
-    if name:
-        query["name"] = {"$regex": name, "$options": "i"}
-    if created_by:
-        query["created_by"] = created_by
-    if created_after:
-        query["created"] = {"$gte": created_after}
-    if created_after:
-        query["created"] = {"$lte": created_until}
-    if revoked:
-        query["revoked"] = revoked
-    if labels:
-        regex_labels = [f"^{re.escape(label)}" for label in labels]
-        query["labels"] = {"$regex": "|".join(regex_labels)}
-    
-    playbooks = await playbooks_collection.find(query).sort("_id", -1).to_list(None)
-    for playbook in playbooks:
-        playbook["_id"] = str(playbook["_id"])
-    return playbooks
-
 @router.get("/{id}", response_model=PlaybookInDB, status_code=status.HTTP_200_OK)
 async def get_playbook(id: str):
     """
