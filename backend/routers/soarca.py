@@ -3,9 +3,11 @@ from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, status, APIRouter, BackgroundTasks
+from tenacity import retry, stop_after_attempt, wait_fixed
 from typing import List
 
 import httpx
+import logging
 
 from models.playbook import Playbook
 from models.execution import ExecutionInDB, StatusType
@@ -67,6 +69,22 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
     except httpx.HTTPError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(5), reraise=True)
+async def fetch_report(client: httpx.AsyncClient, execution_id: str):
+    """
+    Fetches the playbook report for a given execution_id with retries.
+
+    Arguments:
+    - client: The httpx client instance to use for the request.
+    - execution_id: The execution_id of the playbook to monitor.
+
+    Returns:
+    - The JSON response of the playbook status.
+    """
+
+    response = await client.get(f"{soarca_url}/reporter/{execution_id}")
+    response.raise_for_status()
+    return response.json()    
 
 def update_execution(execution_id: str, status: str, end_time: datetime, runtime: float):
     """
@@ -105,10 +123,7 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
         async def monitoring_loop():
             while True:
                 async with httpx.AsyncClient() as client:
-                    response = await client.get(f"{soarca_url}/reporter/{execution_id}")
-                    response.raise_for_status()
-
-                    reporter_info = response.json()
+                    reporter_info = await fetch_report(client, execution_id)
                     end_time = datetime.now(timezone.utc)
 
                     # Check if the playbook execution has completed
