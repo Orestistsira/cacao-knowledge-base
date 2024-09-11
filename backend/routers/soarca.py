@@ -7,7 +7,6 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from typing import List
 
 import httpx
-import logging
 
 from models.playbook import Playbook
 from models.execution import ExecutionInDB, StatusType
@@ -54,7 +53,7 @@ async def trigger_playbook(playbook: Playbook, background_tasks: BackgroundTasks
 
             start_time = datetime.now(timezone.utc)
 
-            playbook_executions.insert_one({
+            await playbook_executions.insert_one({
                 "playbook_id": playbook_id,
                 "execution_id": execution_id,
                 "status": StatusType.ongoing,
@@ -86,7 +85,7 @@ async def fetch_report(client: httpx.AsyncClient, execution_id: str):
     response.raise_for_status()
     return response.json()    
 
-def update_execution(execution_id: str, status: str, end_time: datetime, runtime: float):
+async def update_execution(execution_id: str, status: str, end_time: datetime, runtime: float):
     """
     Updates the playbook execution object in the database.
 
@@ -104,7 +103,7 @@ def update_execution(execution_id: str, status: str, end_time: datetime, runtime
     }
 
     # Assuming playbook_executions is a MongoDB collection
-    playbook_executions.update_one({"execution_id": execution_id}, {"$set": update_data})
+    await playbook_executions.update_one({"execution_id": execution_id}, {"$set": update_data})
     
 async def monitor_execution(execution_id: str, start_time: datetime, timeout_seconds: int = 3600):
     """
@@ -128,7 +127,7 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
 
                     # Check if the playbook execution has completed
                     if reporter_info["status"] != StatusType.ongoing:
-                        update_execution(
+                        await update_execution(
                             execution_id, 
                             reporter_info["status"], 
                             end_time, 
@@ -145,7 +144,7 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
         # Handle the case where the monitoring times out
         end_time = datetime.now(timezone.utc)
 
-        update_execution(
+        await update_execution(
             execution_id,
             StatusType.timeout_error,
             end_time, 
@@ -156,7 +155,7 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
         # Handle the case where an http error occures
         end_time = datetime.now(timezone.utc)
 
-        update_execution(
+        await update_execution(
             execution_id,
             StatusType.server_side_error,
             end_time, 
@@ -167,7 +166,7 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
         # Handle the case where a client exception occures
         end_time = datetime.now(timezone.utc)
 
-        update_execution(
+        await update_execution(
             execution_id,
             StatusType.client_side_error,
             end_time, 
@@ -183,7 +182,7 @@ async def get_executions():
     - A list of executions.
     """
 
-    executions = list(playbook_executions.find().sort("_id", -1))
+    executions = await playbook_executions.find().sort("_id", -1).to_list(None)
     for execution in executions:
         execution["_id"] = str(execution["_id"])
     return executions
@@ -197,7 +196,7 @@ async def get_ongoing_executions():
     - A list of ongoing executions.
     """
 
-    ongoing_executions = list(playbook_executions.find({"status": "ongoing"}).sort("_id", -1))
+    ongoing_executions = await playbook_executions.find({"status": "ongoing"}).sort("_id", -1).to_list(None)
     for execution in ongoing_executions:
         execution["_id"] = str(execution["_id"])
     return ongoing_executions
@@ -212,7 +211,7 @@ async def get_completed_executions():
     """
 
     # Find executions where the status is not 'ongoing'
-    completed_executions = list(playbook_executions.find({"status": {"$ne": "ongoing"}}).sort("_id", -1))
+    completed_executions = await playbook_executions.find({"status": {"$ne": "ongoing"}}).sort("_id", -1).to_list(None)
     
     # Convert MongoDB ObjectId to string for each execution
     for execution in completed_executions:
@@ -230,7 +229,7 @@ async def delete_all_executions():
     """
 
     # Perform the deletion
-    result = playbook_executions.delete_many({})
+    result = await playbook_executions.delete_many({})
 
     if result.deleted_count > 0:
         return {"message": "Executions deleted successfully"}

@@ -98,7 +98,7 @@ async def share_playbook(playbook: Playbook):
     """
 
     try:
-        sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
+        sharing_object = await sharings_collection.find_one({"playbook_id": playbook.id})
 
         if sharing_object:
             if sharing_object["shared_versions"]:
@@ -113,7 +113,7 @@ async def share_playbook(playbook: Playbook):
         result = await add_object({"objects": [stix_playbook]})
 
         # Update the playbook's 'shared_versions' property in the sharing collection
-        sharings_collection.update_one(
+        await sharings_collection.update_one(
             {"playbook_id": playbook.id},
             {"$addToSet": {"shared_versions": playbook.modified}},
             upsert=True
@@ -144,7 +144,7 @@ async def save_playbook(id: str):
 
         # Convert STIX object to Playbook
         playbook = stix_to_playbook(stix_playbook)
-        existing_playbook = playbooks_collection.find_one({"id": playbook.id})
+        existing_playbook = await playbooks_collection.find_one({"id": playbook.id})
 
         result = None
         if existing_playbook:
@@ -154,7 +154,7 @@ async def save_playbook(id: str):
             # Create Playbook
             result = await create_playbook(playbook)
 
-        sharings_collection.update_one(
+        await sharings_collection.update_one(
             {"playbook_id": playbook.id},
             {"$addToSet": {"shared_versions": playbook.modified}},
             upsert=True
@@ -173,7 +173,7 @@ async def get_playbooks_to_share():
     - A list of playbooks with the shared property marked accordingly.
     """
 
-    playbooks_to_share = list(playbooks_collection.aggregate(to_share_pipeline))
+    playbooks_to_share = await playbooks_collection.aggregate(to_share_pipeline).to_list(None)
     
     return playbooks_to_share
 
@@ -197,7 +197,7 @@ async def get_playbooks_to_save():
             playbook["stix_id"] = stix_playbook["id"]
             playbook = PlaybookWithStixId(**playbook)
 
-            sharing_object = sharings_collection.find_one({"playbook_id": playbook.id})
+            sharing_object = await sharings_collection.find_one({"playbook_id": playbook.id})
 
             if sharing_object:
                 # Set 'shared' field based on whether 'modified' is in 'shared_versions'
@@ -208,7 +208,7 @@ async def get_playbooks_to_save():
 
             playbooks_to_save.append(playbook)
 
-        return playbooks_to_save
+        return reversed(playbooks_to_save)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
@@ -221,7 +221,7 @@ async def get_sharings():
     - A list of sharings.
     """
 
-    sharings = list(sharings_collection.find().sort("_id", -1))
+    sharings = await sharings_collection.find().sort("_id", -1).to_list(None)
     for sharing in sharings:
         sharing["_id"] = str(sharing["_id"])
     return sharings
@@ -235,7 +235,7 @@ async def get_sharing(playbook_id: str):
     - A sharing object.
     """
 
-    sharing = sharings_collection.find_one({"playbook_id": playbook_id})
+    sharing = await sharings_collection.find_one({"playbook_id": playbook_id})
     if sharing:
         sharing["_id"] = str(sharing["_id"])
         return sharing
@@ -251,7 +251,7 @@ async def delete_sharing(playbook_id: str):
     - A message indicating the playbook was deleted successfully.
     """
 
-    result = sharings_collection.delete_one({"playbook_id": playbook_id})
+    result = await sharings_collection.delete_one({"playbook_id": playbook_id})
     if result.deleted_count == 1:
         return {"message": "Sharing deleted successfully"}
     

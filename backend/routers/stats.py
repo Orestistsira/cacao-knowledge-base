@@ -42,7 +42,7 @@ async def get_completion_rate_per_playbook():
     """
 
     # Execute the aggregation pipeline
-    results = list(playbook_executions.aggregate(comp_rate_per_playbook_pipeline))
+    results = await playbook_executions.aggregate(comp_rate_per_playbook_pipeline).to_list(None)
 
     return results
 
@@ -85,7 +85,7 @@ async def get_average_runtime_per_playbook():
     """
 
     # Execute the aggregation pipeline
-    results = list(playbook_executions.aggregate(avg_runtime_per_playbook_pipeline))
+    results = await playbook_executions.aggregate(avg_runtime_per_playbook_pipeline).to_list(None)
 
     # Prepare the response
     playbook_averages = [
@@ -104,7 +104,7 @@ async def count_playbooks():
     - The total count of playbooks.
     """
 
-    playbook_count = playbooks_collection.count_documents({})
+    playbook_count = await playbooks_collection.count_documents({})
     return {"playbook_count": playbook_count}
 
 @router.get("/playbooks/active-count", response_model=dict, status_code=status.HTTP_200_OK)
@@ -116,7 +116,7 @@ async def count_active_playbooks():
     - The count of active playbooks.
     """
 
-    active_playbooks_count = playbooks_collection.count_documents({"revoked": False})
+    active_playbooks_count = await playbooks_collection.count_documents({"revoked": False})
     return {"active_playbooks_count": active_playbooks_count}
 
 @router.get("/executions/count", response_model=dict, status_code=status.HTTP_200_OK)
@@ -128,7 +128,7 @@ async def count_executions():
     - The total count of executions.
     """
 
-    executions_count = playbook_executions.count_documents({})
+    executions_count = await playbook_executions.count_documents({})
     return {"executions_count": executions_count}
 
 @router.get("/executions/count/ongoing", response_model=dict, status_code=status.HTTP_200_OK)
@@ -141,7 +141,7 @@ async def count_ongoing_executions():
     """
 
     # Query to count the number of ongoing executions
-    ongoing_count = playbook_executions.count_documents({"status": "ongoing"})
+    ongoing_count = await playbook_executions.count_documents({"status": "ongoing"})
     
     return {"ongoing_executions": ongoing_count}
 
@@ -155,7 +155,7 @@ async def get_average_runtime():
     """
 
     # Execute the pipeline
-    result = list(playbook_executions.aggregate(avg_runtime_pipeline))
+    result = await playbook_executions.aggregate(avg_runtime_pipeline).to_list(None)
 
     # Check if we have a result and return it, otherwise return None
     average_runtime = result[0]["average_runtime"] if result else None
@@ -172,7 +172,7 @@ async def get_average_completion_rate():
     """
 
     # Execute the aggregation pipeline
-    results = list(playbook_executions.aggregate(avg_comp_rate_pipeline))
+    results = await playbook_executions.aggregate(avg_comp_rate_pipeline).to_list(None)
 
     # Prepare the response
     average_completion_rate = results[0]["average_completion_rate"] if results else None

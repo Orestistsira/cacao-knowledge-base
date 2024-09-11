@@ -32,9 +32,9 @@ async def create_playbook(playbook: Playbook):
 
     playbook = playbook.model_dump()
 
-    result = playbooks_collection.insert_one(playbook)
+    result = await playbooks_collection.insert_one(playbook)
     if result:
-        history_collection.insert_one(playbook)
+        await history_collection.insert_one(playbook)
 
     return {"_id": str(result.inserted_id)}
 
@@ -50,13 +50,13 @@ async def get_playbooks(limit: int=50):
     - A list of playbook objects.
     """
 
-    playbooks = list(playbooks_collection.find().sort("_id", -1).limit(limit))
+    playbooks = await playbooks_collection.find().sort("_id", -1).limit(limit).to_list(None)
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
 
 @router.get("/meta", response_model=List[PlaybookMeta], status_code=status.HTTP_200_OK)
-async def get_playbooks_meta():
+async def get_playbooks_meta(limit: int=50):
     """
     Retrieve a list of playbooks metadata.
 
@@ -67,7 +67,7 @@ async def get_playbooks_meta():
     - A list of playbook metadata objects.
     """
 
-    playbooks_meta = list(playbooks_collection.aggregate(meta_pipeline))
+    playbooks_meta = await playbooks_collection.aggregate(meta_pipeline).to_list(None)
     return playbooks_meta
 
 @router.get("/search", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
@@ -111,7 +111,7 @@ async def search_playbooks(
         regex_labels = [f"^{re.escape(label)}" for label in labels]
         query["labels"] = {"$regex": "|".join(regex_labels)}
     
-    playbooks = list(playbooks_collection.find(query).sort("_id", -1).limit(limit))
+    playbooks = await playbooks_collection.find(query).sort("_id", -1).limit(limit).to_list(None)
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
@@ -131,7 +131,7 @@ async def get_playbook(id: str):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook = playbooks_collection.find_one({"id": id})
+    playbook = await playbooks_collection.find_one({"id": id})
     if playbook:
         playbook["_id"] = str(playbook["_id"])
         return playbook
@@ -157,7 +157,7 @@ async def update_playbook(id: str, playbook_update: Playbook):
     playbook_update = playbook_update.model_dump()
 
     # Retrieve the existing playbook from the database
-    existing_playbook = playbooks_collection.find_one({"id": id})
+    existing_playbook = await playbooks_collection.find_one({"id": id})
     if not existing_playbook:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -191,7 +191,7 @@ async def update_playbook(id: str, playbook_update: Playbook):
         )
 
     # Update playbook
-    result = playbooks_collection.update_one(
+    result = await playbooks_collection.update_one(
         {
             "id": id,
             "created": playbook_update["created"],
@@ -201,7 +201,7 @@ async def update_playbook(id: str, playbook_update: Playbook):
     )
     
     if result.modified_count == 1:
-        history_collection.insert_one(playbook_update)
+        await history_collection.insert_one(playbook_update)
         return {"message": "Playbook updated"}
     
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Playbook not updated")
@@ -221,7 +221,7 @@ async def delete_playbook(id: str):
     - HTTPException: If the playbook is not found.
     """
 
-    result = playbooks_collection.delete_one({"id": id})
+    result = await playbooks_collection.delete_one({"id": id})
     if result.deleted_count == 1:
         return {"message": "Playbook deleted successfully"}
     
@@ -243,7 +243,7 @@ async def get_playbook_history(id: str, limit: int=50):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook_history = list(history_collection.find({"id": id}).sort("_id", -1).limit(limit))
+    playbook_history = await history_collection.find({"id": id}).sort("_id", -1).limit(limit).to_list(None)
     if len(playbook_history) > 0:
         # Delete first playbook which is the current
         del playbook_history[0]
@@ -268,7 +268,7 @@ async def delete_playbook_history(id: str):
     - HTTPException: If no history playbooks are found.
     """
 
-    result = history_collection.delete_many({"id": id})
+    result = await history_collection.delete_many({"id": id})
     if result.deleted_count > 0:
         return {"message": f"History playbooks deleted successfully"}
     
@@ -289,7 +289,7 @@ async def get_history_playbook(history_id: str):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook = history_collection.find_one({"_id": ObjectId(history_id)})
+    playbook = await history_collection.find_one({"_id": ObjectId(history_id)})
     if playbook:
         playbook["_id"] = str(playbook["_id"])
         return playbook
@@ -311,12 +311,12 @@ async def rollback_playbook(history_id: str):
     - HTTPException: If the history playbook is not found or is revoked.
     """
 
-    history_playbook = history_collection.find_one({"_id": ObjectId(history_id)})
+    history_playbook = await history_collection.find_one({"_id": ObjectId(history_id)})
     if history_playbook is not None:
         playbook_id = history_playbook["id"]
 
         # Retrieve the existing playbook from the database
-        existing_playbook = playbooks_collection.find_one({"id": playbook_id})
+        existing_playbook = await playbooks_collection.find_one({"id": playbook_id})
         if not existing_playbook:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -334,9 +334,9 @@ async def rollback_playbook(history_id: str):
         history_playbook.pop("_id")
         history_playbook["modified"] = get_current_timestamp()
         
-        result = playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
+        result = await playbooks_collection.update_one({"id": playbook_id}, {"$set": history_playbook})
         if result.modified_count == 1:
-            history_collection.insert_one(history_playbook)
+            await history_collection.insert_one(history_playbook)
             return {"message": "Playbook restored successfully"}
         
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
