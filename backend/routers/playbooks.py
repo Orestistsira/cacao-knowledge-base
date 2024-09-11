@@ -39,29 +39,23 @@ async def create_playbook(playbook: Playbook):
     return {"_id": str(result.inserted_id)}
 
 @router.get("/", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
-async def get_playbooks(limit: int=50):
+async def get_playbooks():
     """
     Retrieve a list of playbooks.
-
-    Arguments:
-    - limit: The maximum number of playbooks to retrieve (default is 50).
 
     Returns:
     - A list of playbook objects.
     """
 
-    playbooks = await playbooks_collection.find().sort("_id", -1).limit(limit).to_list(None)
+    playbooks = await playbooks_collection.find().sort("_id", -1).to_list(None)
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
 
 @router.get("/meta", response_model=List[PlaybookMeta], status_code=status.HTTP_200_OK)
-async def get_playbooks_meta(limit: int=50):
+async def get_playbooks_meta():
     """
     Retrieve a list of playbooks metadata.
-
-    Arguments:
-    - limit: The maximum number of playbook metadata to retrieve (default is 50).
 
     Returns:
     - A list of playbook metadata objects.
@@ -77,8 +71,7 @@ async def search_playbooks(
     created_after: datetime | None = None,
     created_until: datetime | None = None,
     revoked: bool | None = None,
-    labels: Annotated[list[str] | None, Query()] = None,
-    limit: int = 50
+    labels: Annotated[list[str] | None, Query()] = None
 ):
     """
     Search for playbooks based on various criteria.
@@ -90,7 +83,6 @@ async def search_playbooks(
     - created_until: Search for playbooks created until a certain date.
     - revoked: Search for playbooks that are revoked.
     - labels: Search for playbooks with specific labels.
-    - limit: The maximum number of playbooks to retrieve (default is 50).
 
     Returns:
     - A list of playbook objects that match the search criteria.
@@ -111,7 +103,7 @@ async def search_playbooks(
         regex_labels = [f"^{re.escape(label)}" for label in labels]
         query["labels"] = {"$regex": "|".join(regex_labels)}
     
-    playbooks = await playbooks_collection.find(query).sort("_id", -1).limit(limit).to_list(None)
+    playbooks = await playbooks_collection.find(query).sort("_id", -1).to_list(None)
     for playbook in playbooks:
         playbook["_id"] = str(playbook["_id"])
     return playbooks
@@ -228,13 +220,12 @@ async def delete_playbook(id: str):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playbook not found")
 
 @router.get("/{id}/history", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
-async def get_playbook_history(id: str, limit: int=50):
+async def get_playbook_history(id: str):
     """
     Retrieve the history of a playbook by its Playbook ID property.
 
     Arguments:
     - playbook_id: The Playbook ID of the playbook to retrieve history for.
-    - limit: The maximum number of history entries to retrieve (default is 50).
 
     Returns:
     - A list of playbook history objects.
@@ -243,7 +234,7 @@ async def get_playbook_history(id: str, limit: int=50):
     - HTTPException: If the playbook is not found.
     """
 
-    playbook_history = await history_collection.find({"id": id}).sort("_id", -1).limit(limit).to_list(None)
+    playbook_history = await history_collection.find({"id": id}).sort("_id", -1).to_list(None)
     if len(playbook_history) > 0:
         # Delete first playbook which is the current
         del playbook_history[0]
