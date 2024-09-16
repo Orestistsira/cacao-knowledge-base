@@ -69,39 +69,3 @@ to_share_pipeline = [
         }
     }
 ]
-
-    # # Retrieve all shared playbooks data
-    # shared_playbooks = list(
-    #     sharings_collection.find(
-    #         {}, 
-    #         {"playbook_id": 1, "shared_versions": 1, "_id": 0}
-    #     )
-    # )
-    
-    # # Build a dictionary to map playbook_id to shared versions
-    # shared_versions_map = {
-    #     pb["playbook_id"]: pb["shared_versions"] for pb in shared_playbooks
-    # }
-    
-    # # Retrieve all playbooks
-    # playbooks = list(playbooks_collection.find({}))
-    
-    # # Filter out playbooks where 'modified' exists in the corresponding shared_versions
-    # unshared_playbooks = []
-    # for playbook in playbooks:
-    #     playbook_id = playbook["id"]
-    #     modified_value = playbook["modified"]
-        
-    #     # Check if the current modified value is in the shared versions
-    #     if playbook_id in shared_versions_map:
-    #         if modified_value not in shared_versions_map[playbook_id]:
-    #             unshared_playbooks.append(playbook)
-    #     else:
-    #         # If no shared versions exist, consider it as unshared
-    #         unshared_playbooks.append(playbook)
-    
-    # # Convert ObjectId to string for JSON serialization
-    # for playbook in unshared_playbooks:
-    #     playbook["_id"] = str(playbook["_id"])
-    
-    # return unshared_playbooks
