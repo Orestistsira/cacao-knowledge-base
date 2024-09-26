@@ -17,7 +17,7 @@ router = APIRouter(
 playbooks_collection = db.playbooks
 history_collection = db.history
 
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_playbook(playbook: Playbook):
     """
     Create a new playbook.
@@ -37,7 +37,7 @@ async def create_playbook(playbook: Playbook):
 
     return {"_id": str(result.inserted_id)}
 
-@router.get("/", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[PlaybookInDB], status_code=status.HTTP_200_OK)
 async def get_playbooks():
     """
     Retrieve a list of playbooks.

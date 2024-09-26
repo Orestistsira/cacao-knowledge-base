@@ -213,7 +213,7 @@ async def get_playbooks_to_save():
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@router.get("/sharings/", response_model=List[SharingInDB], status_code=status.HTTP_200_OK)
+@router.get("/sharings", response_model=List[SharingInDB], status_code=status.HTTP_200_OK)
 async def get_sharings():
     """
     Retrieve all sharings.

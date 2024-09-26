@@ -173,18 +173,33 @@ async def monitor_execution(execution_id: str, start_time: datetime, timeout_sec
             (end_time - start_time).total_seconds()
         )
 
-@router.get("/executions/", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
-async def get_executions():
+@router.get("/executions", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
+async def get_executions(status: str | None = None):
     """
-    Retrieve all executions.
-
+    Retrieve executions based on status.
+    - If no status is provided, retrieve all executions.
+    - If a status is provided, retrieve executions with this status.
+    - If 'completed' is provided as status, retrieve all completed (not ongoing) executions.
+    
     Returns:
-    - A list of executions.
+    - A list of executions based on the status.
     """
 
-    executions = await playbook_executions.find().sort("_id", -1).to_list(None)
+    # MongoDB filter based on status
+    query = {}
+    
+    if status == "completed":
+        query = {"status": {"$ne": "ongoing"}}
+    else:
+        query = {"status": status}
+    
+    # Find executions based on the query and sort them
+    executions = await playbook_executions.find(query).sort("_id", -1).to_list(None)
+    
+    # Convert MongoDB ObjectId to string for each execution
     for execution in executions:
         execution["_id"] = str(execution["_id"])
+    
     return executions
 
 @router.delete("/executions", response_model=dict, status_code=status.HTTP_200_OK)
@@ -202,38 +217,6 @@ async def delete_all_executions():
     if result.deleted_count > 0:
         return {"message": "Executions deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No executions found to delete.")
-
-@router.get("/executions/ongoing", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
-async def get_ongoing_executions():
-    """
-    Retrieve ongoing executions.
-
-    Returns:
-    - A list of ongoing executions.
-    """
-
-    ongoing_executions = await playbook_executions.find({"status": "ongoing"}).sort("_id", -1).to_list(None)
-    for execution in ongoing_executions:
-        execution["_id"] = str(execution["_id"])
-    return ongoing_executions
-
-@router.get("/executions/completed", response_model=List[ExecutionInDB], status_code=status.HTTP_200_OK)
-async def get_completed_executions():
-    """
-    Retrieve all completed executions (i.e., those that are not ongoing).
-
-    Returns:
-    - A list of completed executions.
-    """
-
-    # Find executions where the status is not 'ongoing'
-    completed_executions = await playbook_executions.find({"status": {"$ne": "ongoing"}}).sort("_id", -1).to_list(None)
-    
-    # Convert MongoDB ObjectId to string for each execution
-    for execution in completed_executions:
-        execution["_id"] = str(execution["_id"])
-    
-    return completed_executions
 
 @router.get("/executions/{execution_id}", response_model=ExecutionInDB, status_code=status.HTTP_200_OK)
 async def get_execution(execution_id: str):
