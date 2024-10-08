@@ -1,0 +1,9 @@
+[submodule "cacao-roaster"]
+	path = cacao-roaster
+	url = https://github.com/Orestistsira/cacao-roaster
+[submodule "SOARCA"]
+	path = SOARCA
+	url = https://github.com/Orestistsira/SOARCA
+[submodule "cti-taxii-server"]
+	path = cti-taxii-server
+	url = https://github.com/Orestistsira/cti-taxii-server
