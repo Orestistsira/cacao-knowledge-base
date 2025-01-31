@@ -23,7 +23,7 @@ git clone --recurse-submodules https://github.com/Orestistsira/cacao-knowledge-b
 cd cacao-knowledge-base
 ```
 
-Follow the setup instructions for the backend and frontend in their respective folders.
+Follow the setup instructions for the backend, the frontend and the submodules in their respective folders.
 
 ## **Contributing**  
 Contributions are welcome, but please note that this repository is **not actively maintained**. If you find any issues or have improvements, feel free to fork the project and modify it as needed.
