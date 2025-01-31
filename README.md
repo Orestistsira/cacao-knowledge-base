@@ -6,6 +6,7 @@
 This repository contains an implementation of a **CACAO Playbook Knowledge Base**, which enables easy storage, retrieval, and management of CACAO playbooks throughout their lifecycle.  
 
 ⚠ **Note:** This project is provided **as-is**, with **no support or future updates**.
+
 ⚠ **Warning:** This project was developed for **research purposes only** and is **not intended for production use**.
 
 ## **Features**  
