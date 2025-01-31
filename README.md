@@ -6,10 +6,11 @@
 This repository contains an implementation of a **CACAO Playbook Knowledge Base**, which enables easy storage, retrieval, and management of CACAO playbooks throughout their lifecycle.  
 
 ⚠ **Note:** This project is provided **as-is**, with **no support or future updates**.
+⚠ **Warning:** This project was developed for **research purposes only** and is **not intended for production use**.
 
 ## **Features**  
-- **Backend:** Implements APIs for managing CACAO playbooks  
-- **Frontend:** Web-based UI for interacting with the system  
+- **Backend:** The backend is built using **FastAPI**, a modern web framework for building APIs with Python. It provides high performance and automatic OpenAPI documentation, making it efficient for managing CACAO playbooks
+- **Frontend:** The frontend is developed using **Retool**, a low-code platform that enables rapid UI development. It provides a user-friendly interface for interacting with the system
 - **Submodules:**
   - **SOARCA** – Execution reporting for playbooks  
   - **CACAO Roaster** – Playbook processing tools  
