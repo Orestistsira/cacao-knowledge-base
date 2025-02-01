@@ -17,6 +17,11 @@ This repository contains an implementation of a **CACAO Playbook Knowledge Base*
   - **CACAO Roaster** – A web application for generating, parsing and validating, manipulating, and visualizing CACAO playbooks
   - **CTI TAXII Server** – A minimal implementation of a TAXII 2.1 Server, used for sharing CACAO playbooks
 
+## **Demo**  
+Watch a demonstration of the **CACAO Playbook Knowledge Base** in action:  
+
+▶ [**Watch on YouTube**](https://youtu.be/6fGhg02aMlg)
+
 ## **Installation & Usage**  
 To get started, clone the repository with submodules:  
 
