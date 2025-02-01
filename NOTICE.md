@@ -2,9 +2,7 @@ This project includes modified versions of third-party software licensed under t
 
 Modifications have been made to the following components:  
 
-- [Project Name] (Original: https://github.com/original-author/project)  
-  - Description of changes: (e.g., "Added new API endpoints for X", "Refactored authentication system")  
-- [Project Name] (Original: https://github.com/original-author/project)  
-  - Description of changes: (e.g., "Fixed issue with Y", "Improved performance of Z")  
+- [CACAO Roaster](https://github.com/opencybersecurityalliance/cacao-roaster) 
+  - A description of changes is stated in each modified source file
 
 The original license and copyright notices are included in the respective `LICENSE` file.
