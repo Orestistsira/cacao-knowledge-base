@@ -19,7 +19,7 @@ This project is provided **as-is**, with **no support or future updates**.
 - **Backend:** The backend is built using **FastAPI**, a modern web framework for building APIs with Python. It provides high performance and automatic OpenAPI documentation, making it efficient for managing CACAO playbooks
 - **Frontend:** The frontend is developed using **Retool**, a low-code platform that enables rapid UI development. It provides a user-friendly interface for interacting with the system
 - **Submodules:**
-  - **SOARCA** – A SOAR tool, used for the execution of CACAO playbooks and execution status reporting 
+  - **SOARCA v1.0.0** – A SOAR tool, used for the execution of CACAO playbooks and execution status reporting 
   - **CACAO Roaster** – A web application for generating, parsing and validating, manipulating, and visualizing CACAO playbooks
   - **CTI TAXII Server** – A minimal implementation of a TAXII 2.1 Server, used for sharing CACAO playbooks
 
