@@ -3,11 +3,17 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)  
 
 ## **Overview**  
-This repository contains an implementation of a **CACAO Playbook Knowledge Base**, which enables easy storage, retrieval, and management of CACAO v2.0 playbooks throughout their lifecycle.  
+This repository contains an implementation of a **CACAO Playbook Knowledge Base**, which enables easy storage, retrieval, and management of CACAO v2.0 playbooks throughout their lifecycle.
 
-⚠ **Note:** This project is provided **as-is**, with **no support or future updates**.
+The CACAO Standard is an open standard designed to structure and automate cybersecurity playbooks. It provides a standardized format for defining, sharing, and executing security procedures, helping organizations improve incident response. For wider adoption of the CACAO specification, we provide a dedicated Knowledge Base to simplify the management, execution, and sharing of CACAO playbooks.
 
-⚠ **Warning:** This project was developed for **research purposes only** and is **not intended for production use**.
+The CACAO Knowledge Base platform complies fully to the [**CACAO v2.0 specification**]([https://youtu.be/6fGhg02aMlg](https://docs.oasis-open.org/cacao/security-playbooks/v2.0/security-playbooks-v2.0.pdf)).
+
+⚠ **Note:** This project was developed for **research purposes only** and is **not intended for production use**.
+
+## **Project Status**
+
+This project is provided **as-is**, with **no support or future updates**.
 
 ## **Features**  
 - **Backend:** The backend is built using **FastAPI**, a modern web framework for building APIs with Python. It provides high performance and automatic OpenAPI documentation, making it efficient for managing CACAO playbooks
