@@ -1,0 +1,141 @@
+version: '3.7'
+
+services:
+  # MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - type: volume
+        source: mongo_data
+        target: /data/db
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  # Backend (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_service
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/
+      SOARCA_URI: http://soarca:8080
+      TAXII_URI: http://cti-taxii-server:5000
+      TAXII_USERNAME: user
+      TAXII_PASSWORD: pass
+      APITALLY_CLIENT_ID: ${APITALLY_CLIENT_ID}
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    env_file:
+      - .env  # Load environment variables
+    depends_on:
+      - mongo  # Only depend on MongoDB for direct connection
+
+  # Mosquitto
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    volumes:
+      - type: volume
+        source: mosquitto_config
+        target: /mosquitto/config
+      - type: volume
+        source: mosquitto_data
+        target: /mosquitto/data
+      - type: volume
+        source: mosquitto_log
+        target: /mosquitto/log
+    networks:
+      - mqtt-net
+    ports:
+      - target: 1883
+        published: 1883
+        protocol: tcp
+        mode: host
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: host
+
+  # SOARCA
+  soarca:
+    image: cossas/soarca:latest
+    container_name: soarca_server
+    environment:
+      PORT: 8080
+      SOARCA_ALLOWED_ORIGINS: "*"
+      GIN_MODE: "release"
+      MONGODB_URI: mongodb://mongo:27017/
+      DATABASE_NAME: "soarca"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "rootpassword"
+      PLAYBOOK_API_LOG_LEVEL: trace
+      DATABASE: "false"
+      LOG_GLOBAL_LEVEL: "info"
+      LOG_MODE: "production"
+      LOG_FILE_PATH: ""
+      LOG_FORMAT: "json"
+      ENABLE_FINS: "true"
+      MQTT_BROKER: "mosquitto"
+      MQTT_PORT: 1883
+      HTTP_SKIP_CERT_VALIDATION: "false"
+    networks:
+      - app-network
+      - mqtt-net
+    env_file:
+      - .env  # Load environment variables
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - mosquitto
+
+  # CTI TAXII Server
+  cti-taxii-server:
+    build:
+      context: ./cti-taxii-server
+      dockerfile: docker_utils/Dockerfile
+    container_name: cti_taxii_server
+    command: ["sh", "-c", "medallion --host 0.0.0.0"]
+    environment:
+      MEDALLION_BACKEND_MODULE_CLASS: MongoBackend
+      MEDALLION_BACKEND_MONGO_URI: mongodb://mongo:27017/
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    env_file:
+      - .env  # Load environment variables
+
+  # CACAO Roaster
+  cacao-roaster:
+    build:
+      context: ./cacao-roaster
+      dockerfile: Dockerfile
+    container_name: cacao_roaster
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+  mqtt-net:
+
+volumes:
+  mongo_data:
+  mosquitto_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: SOARCA/docker/soarca/config
+      o: bind
+  mosquitto_data:
+  mosquitto_log:

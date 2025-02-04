@@ -189,6 +189,10 @@ async def get_playbooks_to_save():
     # Get all STIX objects from TAXII server
     try:
         envelope_objects = await get_objects()
+
+        if len(envelope_objects) == 0:
+            return []
+
         playbooks_to_save = []
 
         for stix_playbook in envelope_objects["objects"]:
