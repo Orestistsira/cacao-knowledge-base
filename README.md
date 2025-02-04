@@ -32,7 +32,7 @@ Watch a demonstration of the **CACAO Playbook Knowledge Base** in action:
 To get started, clone the repository with submodules:  
 
 ```sh
-git clone --recurse-submodules https://github.com/Orestistsira/cacao-knowledge-base.git
+git clone --recurse-submodules git@github.com:Orestistsira/cacao-knowledge-base.git
 cd cacao-knowledge-base
 ```
 
