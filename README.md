@@ -36,7 +36,33 @@ git clone --recurse-submodules git@github.com:Orestistsira/cacao-knowledge-base.
 cd cacao-knowledge-base
 ```
 
-Follow the setup instructions for the backend, the frontend and the submodules in their respective folders.
+This project can be set up **locally** using **Docker Compose** for easy deployment.  
+
+### **Prerequisites**  
+- Install [Docker & Docker Compose](https://docs.docker.com/engine/install/)
+
+### **Build & Run the Project**  
+To start all services in detached mode:  
+```sh
+docker-compose up -d
+```
+
+### **Stopping the Services**  
+To stop all services:  
+```sh
+docker-compose down
+```
+
+### **Viewing Logs**  
+For logs of all services: 
+```sh
+docker-compose logs -f
+```
+
+### **Backend API Access**  
+Once the backend is running, it will be available at: [http://localhost:8000](http://localhost:8000)
+You can explore the Swagger API documentation at: [http://localhost:8000/docs](http://localhost:8000/docs)
+This interactive interface allows you to test API endpoints and understand how the backend functions.
 
 ## **Contributing**  
 Contributions are welcome, but please note that this repository is **not actively maintained**. If you find any issues or have improvements, feel free to fork the project and modify it as needed.
