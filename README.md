@@ -61,7 +61,9 @@ docker-compose logs -f
 
 ### **Backend API Access**  
 Once the backend is running, it will be available at: [http://localhost:8000](http://localhost:8000)
+
 You can explore the Swagger API documentation at: [http://localhost:8000/docs](http://localhost:8000/docs)
+
 This interactive interface allows you to test API endpoints and understand how the backend functions.
 
 ## **Contributing**  
