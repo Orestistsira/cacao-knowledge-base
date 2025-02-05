@@ -17,7 +17,15 @@ The CACAO Knowledge Management System complies fully to the [**CACAO v2.0 specif
   - **CACAO Roaster** – A web application for generating, parsing and validating, manipulating, and visualizing CACAO playbooks
   - **CTI TAXII Server** – A minimal implementation of a TAXII 2.1 Server, used for sharing CACAO playbooks
 
-## **Demo**  
+## **Demonstration**
+### **Screenshots**
+Retrieve Page
+![Retool Retrieve Page](screenshots/retrieve_page.png)
+
+Execute Page
+![Retool Execute Page](screenshots/execute_page.png)
+
+### **Demo**
 Watch a demonstration of the **CACAO Knowledge Management System** in action:  
 
 ▶ [**Watch on YouTube**](https://youtu.be/6fGhg02aMlg)
