@@ -60,6 +60,9 @@ You can explore the Swagger API documentation at: [http://localhost:8000/docs](h
 
 This interactive interface allows you to test API endpoints and understand how the backend functions.
 
+### **CACAO Roaster Editor**
+The CACAO Roaster will run locally on: [http://localhost:3000](http://localhost:3000)
+
 ### **Frontend**
 
 The frontend of this project is built using **Retool**. To use it, you must have a **Retool account** and follow the steps below to import and configure the application.  
