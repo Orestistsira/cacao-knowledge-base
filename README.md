@@ -65,13 +65,13 @@ This interactive interface allows you to test API endpoints and understand how t
 The frontend of this project is built using **Retool**. To use it, you must have a **Retool account** and follow the steps below to import and configure the application.  
 
 #### **1. Create a Retool Account**  
-- If you don’t have one, sign up at [Retool](https://retool.com/).  
-- You can use either **Retool Cloud** (hosted) or a **self-hosted** instance.
+1. If you don’t have one, sign up at [Retool](https://retool.com/).  
+2. You can use either **Retool Cloud** (hosted) or a **self-hosted** instance.
 
 #### **2. Import the Retool Apps**  
-- In your Retool dashboard, go to **Apps → Create → From JSON**.  
-- Upload the **5 JSON files** from the `frontend` folder in this repository.  
-- This will create the required apps for managing CACAO playbooks.
+1. In your Retool dashboard, go to **Apps → Create → From JSON**.  
+2. Upload the **5 JSON files** from the `frontend` folder in this repository.  
+3. This will create the required apps for managing CACAO playbooks.
 
 #### **3. Create a REST API Resource**  
 The frontend interacts with the backend via a **REST API Resource**. To configure it:  
