@@ -81,7 +81,7 @@ The frontend interacts with the backend via a **REST API Resource**. To configur
 4. Create the resource.
 
 #### **4. Using Retool Cloud? Set Up Ngrok (Recommended)**  
-If using Retool online and running the backend locally, you need to expose the API using **Ngrok**:  
+If using Retool online and running the backend locally, you need to expose the API. We recommend using **Ngrok**:  
 1. Install [Ngrok](https://ngrok.com).  
 2. Run:  
 ```sh
