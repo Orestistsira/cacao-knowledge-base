@@ -71,7 +71,8 @@ This project is licensed under the **Apache License 2.0**—see the [LICENSE](LI
 Under this license, you are free to use, modify, and distribute this code, provided that you comply with the terms, including proper attribution and including the original license notice in derivative works.
 
 In addition, if you use this code in academic or research work, we kindly request that you acknowledge the original research by citing the following publication:
-[Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]
+
+- [Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]
 
 While citation is not a strict legal requirement under the license, properly referencing this work helps support continued research and development in this area.
 
