@@ -11,10 +11,6 @@ The CACAO Knowledge Management System complies fully to the [**CACAO v2.0 specif
 
 ⚠ **Note:** This project was developed for **research purposes only** and is **not intended for production use**.
 
-## **Project Status**
-
-This project is provided **as-is**, with **no support or future updates**.
-
 ## **Features**  
 - **Backend:** The backend is built using **FastAPI**, a modern web framework for building APIs with Python. It provides high performance and automatic OpenAPI documentation, making it efficient for managing CACAO playbooks
 - **Frontend:** The frontend is developed using **Retool**, a low-code platform that enables rapid UI development. It provides a user-friendly interface for interacting with the system
@@ -66,14 +62,29 @@ You can explore the Swagger API documentation at: [http://localhost:8000/docs](h
 
 This interactive interface allows you to test API endpoints and understand how the backend functions.
 
-## **Contributing**  
-Contributions are welcome, but please note that this repository is **not actively maintained**. If you find any issues or have improvements, feel free to fork the project and modify it as needed.
+## **Maintenance & Contributions**  
+This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
+
+We do not guarantee the correctness, reliability, or security of this code and make no commitments to maintaining it, addressing bugs, or providing support. Contributions are welcome; however, we do not promise to review or merge pull requests in a timely manner. Users are encouraged to fork and modify the code as needed for their own purposes.
 
 ## **License**  
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
 
+This project is licensed under the **Apache License 2.0**—see the [LICENSE](LICENSE) file for full details.
+
+Under this license, you are free to use, modify, and distribute this code, provided that you comply with the terms, including proper attribution and including the original license notice in derivative works.
+
+In addition, if you use this code in academic or research work, we kindly request that you acknowledge the original research by citing the following publication:
+[Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]
+
+While citation is not a strict legal requirement under the license, properly referencing this work helps support continued research and development in this area.
+
 ## **Acknowledgments**  
-This project builds upon existing open-source efforts, including:  
+This work was conducted as part of a postgraduate thesis at the School of Electrical and Computer Engineering, Aristotle University of Thessaloniki, under the supervision of Prof. Ioannis Papaefstathiou.
+
+Additionally, this research was supported by Automaton Technologies Ltd, whose insights, contributions and collaboration are gratefully acknowledged.
+
+This project also builds upon existing open-source efforts, including:  
 
 - **[SOARCA](https://github.com/COSSAS/SOARCA)**  
 - **[CACAO Roaster](https://github.com/opencybersecurityalliance/cacao-roaster)**  
