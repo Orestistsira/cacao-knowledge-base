@@ -1,7 +1,5 @@
 # **CACAO Knowledge Management System**  
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)  
-
 ## **Overview**  
 This repository contains an implementation of a **CACAO Knowledge Management System**, which enables easy storage, retrieval, and management of CACAO v2.0 playbooks throughout their lifecycle.
 
@@ -68,8 +66,6 @@ This code is provided **as is** for the academic and cybersecurity community, wi
 We do not guarantee the correctness, reliability, or security of this code and make no commitments to maintaining it, addressing bugs, or providing support. Contributions are welcome; however, we do not promise to review or merge pull requests in a timely manner. Users are encouraged to fork and modify the code as needed for their own purposes.
 
 ## **License**  
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
-
 This project is licensed under the **Apache License 2.0**—see the [LICENSE](LICENSE) file for full details.
 
 Under this license, you are free to use, modify, and distribute this code, provided that you comply with the terms, including proper attribution and including the original license notice in derivative works.
