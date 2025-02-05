@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   # MongoDB
   mongo:
@@ -13,8 +11,6 @@ services:
         target: /data/db
     networks:
       - app-network
-    env_file:
-      - .env
 
   # Backend (FastAPI)
   backend:
@@ -28,15 +24,12 @@ services:
       TAXII_URI: http://cti-taxii-server:5000
       TAXII_USERNAME: user
       TAXII_PASSWORD: pass
-      APITALLY_CLIENT_ID: ${APITALLY_CLIENT_ID}
     ports:
       - "8000:8000"
     networks:
       - app-network
-    env_file:
-      - .env  # Load environment variables
     depends_on:
-      - mongo  # Only depend on MongoDB for direct connection
+      - mongo
 
   # Mosquitto
   mosquitto:
@@ -89,8 +82,6 @@ services:
     networks:
       - app-network
       - mqtt-net
-    env_file:
-      - .env  # Load environment variables
     ports:
       - "8080:8080"
     depends_on:
@@ -111,8 +102,8 @@ services:
       - "5000:5000"
     networks:
       - app-network
-    env_file:
-      - .env  # Load environment variables
+    # env_file:
+    #   - .env
 
   # CACAO Roaster
   cacao-roaster:

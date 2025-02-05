@@ -23,11 +23,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-app.add_middleware(
-    ApitallyMiddleware,
-    client_id=os.getenv("APITALLY_CLIENT_ID"),
-    env="dev",  # or "prod"
-)
+# app.add_middleware(
+#     ApitallyMiddleware,
+#     client_id=os.getenv("APITALLY_CLIENT_ID"),
+#     env="dev",  # or "prod"
+# )
 
 # Include playbooks router
 app.include_router(playbooks_router)
