@@ -70,7 +70,7 @@ The frontend of this project is built using **Retool**. To use it, you must have
 
 #### **2. Import the Retool Apps**  
 1. In your Retool dashboard, go to **Apps → Create → From JSON**.  
-2. Upload the **5 JSON files** from the `frontend` folder in this repository.  
+2. Upload the **6 JSON files** from the `frontend` folder in this repository.  
 3. This will create the required apps for managing CACAO playbooks.
 
 #### **3. Create a REST API Resource**  
@@ -87,7 +87,7 @@ If using Retool online and running the backend locally, you need to expose the A
 ```sh
 ngrok http http://localhost:8080
 ```
-3. Copy the generated public URL and update the **Base URL** in your Retool REST API Resource.
+3. Copy the generated public URL and update the **Base URL** in your Retool **REST API Resource**.
 
 ## **Maintenance & Contributions**  
 This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
