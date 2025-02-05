@@ -60,6 +60,35 @@ You can explore the Swagger API documentation at: [http://localhost:8000/docs](h
 
 This interactive interface allows you to test API endpoints and understand how the backend functions.
 
+### **Frontend**
+
+The frontend of this project is built using **Retool**. To use it, you must have a **Retool account** and follow the steps below to import and configure the application.  
+
+#### **1. Create a Retool Account**  
+- If you don’t have one, sign up at [Retool](https://retool.com/).  
+- You can use either **Retool Cloud** (hosted) or a **self-hosted** instance.
+
+#### **2. Import the Retool Apps**  
+- In your Retool dashboard, go to **Apps → Create → From JSON**.  
+- Upload the **5 JSON files** from the `frontend` folder in this repository.  
+- This will create the required apps for managing CACAO playbooks.
+
+#### **3. Create a REST API Resource**  
+The frontend interacts with the backend via a **REST API Resource**. To configure it:  
+1. Go to **Resources → Create New → Resource**.
+2. Select **REST API** as a resource type.
+3. Set the **Base URL** to: [http://backend_service:8000](http://backend_service:8000)
+4. Create the resource.
+
+#### **4. Using Retool Cloud? Set Up Ngrok (Recommended)**  
+If using Retool online and running the backend locally, you need to expose the API using **Ngrok**:  
+1. Install [Ngrok](https://ngrok.com/download).  
+2. Run:  
+```sh
+ngrok http 8000
+```
+3. Copy the generated public URL and update the **Base URL** in your Retool REST API Resource.
+
 ## **Maintenance & Contributions**  
 This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
 
@@ -72,14 +101,14 @@ Under this license, you are free to use, modify, and distribute this code, provi
 
 In addition, if you use this code in academic or research work, we kindly request that you acknowledge the original research by citing the following publication:
 
-- [Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]
+- **[Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]**
 
 While citation is not a strict legal requirement under the license, properly referencing this work helps support continued research and development in this area.
 
 ## **Acknowledgments**  
 This work was conducted as part of a postgraduate thesis at the School of Electrical and Computer Engineering, Aristotle University of Thessaloniki, under the supervision of Prof. Ioannis Papaefstathiou.
 
-Additionally, this research was supported by Automaton Technologies Ltd, whose insights, contributions and collaboration are gratefully acknowledged.
+Additionally, this research was supported by **Automaton Technologies Ltd**, whose insights, contributions and collaboration are gratefully acknowledged.
 
 This project also builds upon existing open-source efforts, including:  
 
