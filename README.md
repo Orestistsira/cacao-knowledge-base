@@ -1,13 +1,13 @@
-# **CACAO Knowledge Base**  
+# **CACAO Knowledge Management System**  
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)  
 
 ## **Overview**  
-This repository contains an implementation of a **CACAO Playbook Knowledge Base**, which enables easy storage, retrieval, and management of CACAO v2.0 playbooks throughout their lifecycle.
+This repository contains an implementation of a **CACAO Knowledge Management System**, which enables easy storage, retrieval, and management of CACAO v2.0 playbooks throughout their lifecycle.
 
-The CACAO Standard is an open standard designed to structure and automate cybersecurity playbooks. It provides a standardized format for defining, sharing, and executing security procedures, helping organizations improve incident response. For wider adoption of the CACAO specification, we provide a dedicated Knowledge Base to simplify the management, execution, and sharing of CACAO playbooks.
+The CACAO Standard is an open standard designed to structure and automate cybersecurity playbooks. It provides a standardized format for defining, sharing, and executing security procedures, helping organizations improve incident response. For wider adoption of the CACAO specification, we provide a dedicated Knowledge Management System to simplify the management, execution, and sharing of CACAO playbooks.
 
-The CACAO Knowledge Base platform complies fully to the [**CACAO v2.0 specification**](https://docs.oasis-open.org/cacao/security-playbooks/v2.0/security-playbooks-v2.0.pdf).
+The CACAO Knowledge Management System complies fully to the [**CACAO v2.0 specification**](https://docs.oasis-open.org/cacao/security-playbooks/v2.0/security-playbooks-v2.0.pdf).
 
 ⚠ **Note:** This project was developed for **research purposes only** and is **not intended for production use**.
 
@@ -24,7 +24,7 @@ This project is provided **as-is**, with **no support or future updates**.
   - **CTI TAXII Server** – A minimal implementation of a TAXII 2.1 Server, used for sharing CACAO playbooks
 
 ## **Demo**  
-Watch a demonstration of the **CACAO Playbook Knowledge Base** in action:  
+Watch a demonstration of the **CACAO Knowledge Management System** in action:  
 
 ▶ [**Watch on YouTube**](https://youtu.be/6fGhg02aMlg)
 
