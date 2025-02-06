@@ -107,7 +107,7 @@ ngrok http http://localhost:8080
 4. Click the **Save & Run** button.
 
 Linking API Resource with the Retool Apps
-![Linking API Resource](screenshots/retool_edit_request.png.png)
+![Linking API Resource](screenshots/retool_edit_request.png)
 
 ## **Maintenance & Contributions**  
 This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
