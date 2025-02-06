@@ -83,7 +83,7 @@ The frontend of this project is built using **Retool**. To use it, you must have
 The frontend interacts with the backend via a **REST API Resource**. To configure it:  
 1. Go to **Resources → Create New → Resource**.
 2. Select **REST API** as a resource type.
-3. If you are using **Retool Cloud** continue to the next step.
+3. If you are using **Retool Cloud** continue to the next section.
 4. Set the **Base URL** to: [http://backend_service:8000](http://backend_service:8000)
 5. Create the resource.
 
@@ -95,6 +95,7 @@ If using Retool online and running the backend locally, you need to expose the A
 ngrok http http://localhost:8080
 ```
 3. Copy the generated public URL and update the **Base URL** in your Retool **REST API Resource**.
+4. Create the resource.
 
 #### **4. Import the Retool Apps**  
 1. In your Retool dashboard, go to **Apps → Create → From JSON**.  
