@@ -79,19 +79,14 @@ The frontend of this project is built using **Retool**. To use it, you must have
 1. If you don’t have one, sign up at [Retool](https://retool.com/).  
 2. You can use either **Retool Cloud** (hosted) or a **self-hosted** instance.
 
-#### **2. Import the Retool Apps**  
-1. In your Retool dashboard, go to **Apps → Create → From JSON**.  
-2. Upload the **6 JSON files** from the `frontend` folder in this repository.  
-3. This will create the required apps for managing CACAO playbooks.
-
-#### **3. Create a REST API Resource**  
+#### **2. Create a REST API Resource**  
 The frontend interacts with the backend via a **REST API Resource**. To configure it:  
 1. Go to **Resources → Create New → Resource**.
 2. Select **REST API** as a resource type.
 3. Set the **Base URL** to: [http://backend_service:8000](http://backend_service:8000)
 4. Create the resource.
 
-#### **4. Using Retool Cloud? Set Up Ngrok (Recommended)**  
+#### **3. Using Retool Cloud? Set Up Ngrok (Recommended)**  
 If using Retool online and running the backend locally, you need to expose the API. We recommend using **Ngrok**:  
 1. Install [Ngrok](https://ngrok.com).  
 2. Run:  
@@ -99,6 +94,20 @@ If using Retool online and running the backend locally, you need to expose the A
 ngrok http http://localhost:8080
 ```
 3. Copy the generated public URL and update the **Base URL** in your Retool **REST API Resource**.
+
+#### **4. Import the Retool Apps**  
+1. In your Retool dashboard, go to **Apps → Create → From JSON**.  
+2. Upload the **6 JSON files** from the `frontend` folder in this repository.  
+3. This will create the required apps for managing CACAO playbooks.
+
+#### **5. Link API Resource with the Retool Apps**
+1. Open the retool apps in **Edit** mode.
+2. Click the **Code** option from the menu on the left (see screenshot below).
+3. Link each API request with the **REST API Resource** you created (see screenshot below).
+4. Click the **Save & Run** button.
+
+Linking API Resource with the Retool Apps
+![Linking API Resource](screenshots/retool_edit_request.png.png)
 
 ## **Maintenance & Contributions**  
 This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
