@@ -119,7 +119,7 @@ While citation is not a strict legal requirement under the license, properly ref
 ## **Acknowledgments**  
 This work was conducted as part of a postgraduate thesis at the School of Electrical and Computer Engineering, Aristotle University of Thessaloniki, under the supervision of Prof. Ioannis Papaefstathiou.
 
-Additionally, this research was supported by **Automaton Technologies Ltd**, whose insights, contributions and collaboration are gratefully acknowledged.
+Additionally, this research was supported by **[Automaton Technologies Ltd](https://www.automaton-technologies.eu/)**, whose insights, contributions and collaboration are gratefully acknowledged.
 
 This project also builds upon existing open-source efforts, including:  
 
