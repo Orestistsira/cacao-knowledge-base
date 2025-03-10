@@ -123,7 +123,7 @@ Under this license, you are free to use, modify, and distribute this code, provi
 
 In addition, if you use this code in academic or research work, we kindly request that you acknowledge the original research by citing the following publication:
 
-- **[Full citation of the paper, including authors, title, journal/conference, year, and DOI/link]**
+- **[O. Tsirakis, K. Fysarakis, V. Mavroeidis, I. Papaefstathiou, "Operationalizing Cybersecurity Knowledge: Design, Implementation & Evaluation of a Knowledge Management System for CACAO Playbooks", arXiv preprint, 2025, arXiv:2503.05206](https://arxiv.org/abs/2503.05206)**
 
 While citation is not a strict legal requirement under the license, properly referencing this work helps support continued research and development in this area.
 
