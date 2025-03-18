@@ -73,7 +73,9 @@ The CACAO Roaster will run locally on: [http://localhost:3000](http://localhost:
 
 ### **Frontend**
 
-The frontend of this project is built using **Retool**. To use it, you must have a **Retool account** and follow the steps below to import and configure the application.  
+The frontend of this project is built using **Retool**. To use it, you must have a **Retool account** and follow the steps below to import and configure the application or watch the **Retool Setup Tutorial** video below.
+
+▶ [**Watch Tutorial on YouTube**](https://youtu.be/5YuXE5rBsiw)
 
 #### **1. Create a Retool Account**  
 1. If you don’t have one, sign up at [Retool](https://retool.com/).  
@@ -102,14 +104,10 @@ ngrok http http://localhost:8080
 2. Upload the **6 JSON files** from the `frontend` folder in this repository.  
 3. This will create the required apps for managing CACAO playbooks.
 
-#### **5. Link API Resource with the Retool Apps**
+#### **5. Link the Retool Apps with the API Resource and Navigation Bar (See tutorial video)**
 1. Open the retool apps in **Edit** mode.
-2. Click the **Code** option from the menu on the left (see screenshot below).
-3. Link each API request with the **REST API Resource** you created (see screenshot below).
-4. Click the **Save & Run** button.
-
-Linking API Resource with the Retool Apps
-![Linking API Resource](screenshots/retool_edit_request.png)
+2. Link each **Navigation Element** with the corresponding Retool App.
+3. Link each API request with the **REST API Resource** you created.
 
 ## **Maintenance & Contributions**  
 This code is provided **as is** for the academic and cybersecurity community, with the aim of encouraging adoption, supporting the broader uptake of CACAO playbooks, and promoting the widespread use of interoperable automation and orchestration mechanisms in cybersecurity operations.
